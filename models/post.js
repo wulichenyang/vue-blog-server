@@ -23,7 +23,7 @@ let postSchema = new Schema({
   commentCount: { type: Number, default: 0 },
   // 文章状态 发布/草稿
   state: { type: String, enum: ['published', 'draft'] },
-  // 文章发布时间（还用于sort）
+  // 文章发布时间(作为sort依据)
   createAt: { type: Date, default: Date.now() },
   // 文章修改时间
   updateAt: { type: Date, default: Date.now() },

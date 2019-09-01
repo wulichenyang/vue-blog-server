@@ -1,18 +1,19 @@
 let mongoose = require('mongoose');
 let Schema = mongoose.Schema;
 
-// 点赞
+// 点赞记录
 let likeSchema = new Schema({
   // 发起点赞的用户
-  userId: { type: Schema.Types.ObjectId },
+  userId: { type: Schema.Types.ObjectId, ref: 'User' },
   // 点赞对象类型（post/comment/reply）
   type: { type: String, enum: ['post', 'comment', 'reply'] },
   // 点赞对象id
   targetId: { type: Schema.Types.ObjectId },
+  // 创建日期
   createAt: { type: Date, default: Date.now() }
 });
 
-// 建立索引
+// 添加索引
 LikeSchema.index({ userId: 1, type: 1, targetId: 1 }, { unique: true });
 
 module.exports = mongoose.model('Like', likeSchema);

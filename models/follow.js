@@ -1,20 +1,19 @@
 let mongoose = require('mongoose');
 let Schema = mongoose.Schema;
 
-// 关注
+// 关注记录
 let followSchema = new Schema({
   // 发起关注的用户
   userId: { type: Schema.Types.ObjectId, ref: 'User' },
-  // 关注的文章id
-  postId: { type: Schema.Types.ObjectId, ref: 'Post' },
-  // 关注的话题id
-  categoryId: { type: Schema.Types.ObjectId, ref: 'Category' },
-  // 关注的人id
-  personId: { type: Schema.Types.ObjectId, ref: 'User' },
+  // 关注对象类型（post/category/user）
+  type: { type: String, enum: ['post', 'category', 'user'] },
+  // 关注对象id
+  targetId: { type: Schema.Types.ObjectId },
+  // 创建日期
   createAt: { type: Date, default: Date.now() }
 });
 
-// 建立索引
-followSchema.index({ userId: 1, postId: 1, categoryId: 1, personId: 1 }, { unique: true });
+// 添加索引
+followSchema.index({ userId: 1, type: 1, targetId: 1 }, { unique: true });
 
 module.exports = mongoose.model('Follow', followSchema);
