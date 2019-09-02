@@ -51,6 +51,10 @@ let userSchema = new Schema({
   followPost: [{ type: Schema.Types.ObjectId, ref: 'Post' }],
   followPostCount: { type: Number, default: 0 },
 
+  // 收藏的文章
+  collectPost: [{ type: Schema.Types.ObjectId, ref: 'Post' }],
+  collectPostCount: { type: Number, default: 0 },
+  
   /**
    * 消息/私信/推送
    */ 
