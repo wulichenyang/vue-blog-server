@@ -1,5 +1,6 @@
 let mongoose = require('mongoose');
 let Schema = mongoose.Schema;
+let BaseModel = require('./BaseModel')
 
 // 关注记录
 let followSchema = new Schema({
@@ -16,4 +17,6 @@ let followSchema = new Schema({
 // 添加索引
 followSchema.index({ userId: 1, type: 1, targetId: 1 }, { unique: true });
 
-module.exports = mongoose.model('Follow', followSchema);
+let model = mongoose.model('Follow', followSchema);
+
+module.exports = new BaseModel(model);

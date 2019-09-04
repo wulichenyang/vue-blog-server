@@ -1,5 +1,6 @@
 let mongoose = require('mongoose');
 let Schema = mongoose.Schema;
+let BaseModel = require('./BaseModel')
 
 // 文章
 let postSchema = new Schema({
@@ -29,4 +30,7 @@ let postSchema = new Schema({
   updateAt: { type: Date, default: Date.now() },
 });
 
-module.exports = mongoose.model('Post', postSchema);
+
+let model = mongoose.model('Post', postSchema);
+
+module.exports = new BaseModel(model);

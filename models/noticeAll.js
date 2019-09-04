@@ -1,5 +1,6 @@
 let mongoose = require('mongoose');
 let Schema = mongoose.Schema;
+let BaseModel = require('./BaseModel')
 
 /**
  * 通知关注了文章的多人推送消息
@@ -24,4 +25,6 @@ const noticeAllSchema = new Schema({
 // 添加索引
 noticeAllSchema.index({ fromId: 1, toId: 1, targetId: 1, type: 1 }, { unique: true });
 
-module.exports = mongoose.model('NoticeAll', noticeAllSchema);
+let model = mongoose.model('NoticeAll', noticeAllSchema);
+
+module.exports = new BaseModel(model);

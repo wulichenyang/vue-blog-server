@@ -1,5 +1,6 @@
 let mongoose = require('mongoose');
 let Schema = mongoose.Schema;
+let BaseModel = require('./BaseModel')
 
 // 邮箱账户
 let emailSchema = new Schema({
@@ -16,4 +17,6 @@ emailSchema.index({ email: 1 }, { unique: true });
 emailSchema.index({ userId: 1 }, { unique: true });
 emailSchema.index({ email: 1, userId: 1 }, { unique: true });
 
-module.exports = mongoose.model('Email', emailSchema);
+let model = mongoose.model('Email', emailSchema);
+
+module.exports = new BaseModel(model);

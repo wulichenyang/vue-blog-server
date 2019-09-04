@@ -1,5 +1,6 @@
 let mongoose = require('mongoose');
 let Schema = mongoose.Schema;
+let BaseModel = require('./BaseModel')
 
 // feed 推送消息
 const feedSchema = new Schema({
@@ -27,4 +28,6 @@ const feedSchema = new Schema({
 // 添加索引
 feedSchema.index({ userId: 1, categoryId: 1, postId: 1, commentId: 1, replyId: 1 }, { unique: true });
 
-module.exports = mongoose.model('Feed', feedSchema);
+let model = mongoose.model('Feed', feedSchema);
+
+module.exports = new BaseModel(model);

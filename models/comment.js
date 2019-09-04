@@ -1,5 +1,6 @@
 let mongoose = require('mongoose');
 let Schema = mongoose.Schema;
+let BaseModel = require('./BaseModel')
 
 // 一级评论
 let commentSchema = new Schema({
@@ -22,4 +23,6 @@ let commentSchema = new Schema({
 
 });
 
-module.exports = mongoose.model('Comment', commentSchema);
+let model = mongoose.model('Comment', commentSchema);
+
+module.exports = new BaseModel(model);

@@ -1,5 +1,6 @@
 let mongoose = require('mongoose');
 let Schema = mongoose.Schema;
+let BaseModel = require('./BaseModel')
 
 // 二级评论（回复评论/回复reply）
 let replySchema = new Schema({
@@ -22,4 +23,6 @@ let replySchema = new Schema({
 
 });
 
-module.exports = mongoose.model('Reply', replySchema);
+let model = mongoose.model('Reply', replySchema);
+
+module.exports = new BaseModel(model);

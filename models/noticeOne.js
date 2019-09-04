@@ -1,5 +1,6 @@
 let mongoose = require('mongoose');
 let Schema = mongoose.Schema;
+let BaseModel = require('./BaseModel')
 
 /**
  * 通知一个人的推送消息
@@ -38,5 +39,6 @@ const noticeOneSchema = new Schema({
 
 noticeOneSchema.index({ type: 1, fromId: 1, toId: 1, postId: 1, commentId: 1, replyId: 1 }, { unique: true });
 
+let model = mongoose.model('NoticeOne', noticeOneSchema);
 
-module.exports = mongoose.model('NoticeOne', noticeOneSchema);
+module.exports = new BaseModel(model);

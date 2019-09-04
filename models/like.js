@@ -1,5 +1,6 @@
 let mongoose = require('mongoose');
 let Schema = mongoose.Schema;
+let BaseModel = require('./BaseModel')
 
 // 点赞记录
 let likeSchema = new Schema({
@@ -16,4 +17,5 @@ let likeSchema = new Schema({
 // 添加索引
 LikeSchema.index({ userId: 1, type: 1, targetId: 1 }, { unique: true });
 
-module.exports = mongoose.model('Like', likeSchema);
+let model = mongoose.model('Like', likeSchema);
+module.exports = new BaseModel(model);

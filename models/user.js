@@ -1,5 +1,6 @@
 let mongoose = require('mongoose');
 let Schema = mongoose.Schema;
+let BaseModel = require('./BaseModel')
 
 // 用户
 let userSchema = new Schema({
@@ -75,4 +76,6 @@ let userSchema = new Schema({
   createAt: { type: Date, default: Date.now() },
 });
 
-module.exports = mongoose.model('User', userSchema);
+let model = mongoose.model('User', userSchema);
+
+module.exports = new BaseModel(model);

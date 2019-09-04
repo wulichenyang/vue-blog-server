@@ -1,5 +1,6 @@
 let mongoose = require('mongoose');
 let Schema = mongoose.Schema;
+let BaseModel = require('./BaseModel')
 
 // 手机账户
 let phoneSchema = new Schema({
@@ -16,4 +17,6 @@ phoneSchema.index({ phone: 1 }, { unique: true });
 phoneSchema.index({ userId: 1 }, { unique: true });
 phoneSchema.index({ phone: 1, userId: 1 }, { unique: true });
 
-module.exports = mongoose.model('Phone', phoneSchema);
+let model = mongoose.model('Phone', phoneSchema);
+
+module.exports = new BaseModel(model);

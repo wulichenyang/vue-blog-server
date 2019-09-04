@@ -1,6 +1,6 @@
 let mongoose = require('mongoose');
 let Schema = mongoose.Schema;
-
+let BaseModel = require('./BaseModel')
 
 // 反馈举报
 const reportSchema = new Schema({
@@ -22,4 +22,6 @@ const reportSchema = new Schema({
   createAt: { type: Date, default: Date.now() }
 });
 
-module.exports = mongoose.model('Report', reportSchema);
+let model = mongoose.model('Report', reportSchema);
+
+module.exports = new BaseModel(model);
