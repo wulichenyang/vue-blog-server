@@ -17,27 +17,61 @@ let BaseModel = require('./BaseModel')
  */
 const noticeOneSchema = new Schema({
   // 消息对象的类型
-  type: { type: String },
+  type: {
+    type: String
+  },
   // 消息触发者
-  fromId: { type: Schema.Types.ObjectId, ref: 'User' },
+  fromId: {
+    type: Schema.Types.ObjectId,
+    ref: 'User'
+  },
   // 消息接受者
-  toId: { type: Schema.Types.ObjectId, ref: 'User' },
+  toId: {
+    type: Schema.Types.ObjectId,
+    ref: 'User'
+  },
   // 消息相关文章id
-  postId: { type: Schema.Types.ObjectId, ref: 'Post' },
+  postId: {
+    type: Schema.Types.ObjectId,
+    ref: 'Post'
+  },
   // 消息相关评论id
-  commentId: { type: Schema.Types.ObjectId, ref: 'Comment' },
+  commentId: {
+    type: Schema.Types.ObjectId,
+    ref: 'Comment'
+  },
   // 消息相关回复id
-  replyId: { type: Schema.Types.ObjectId, ref: 'Reply' },
+  replyId: {
+    type: Schema.Types.ObjectId,
+    ref: 'Reply'
+  },
   // 是否已读
-  hasRead: { type: Boolean, default: false },
-  // 创建日期
-  createAt: { type: Date, default: Date.now() }
+  hasRead: {
+    type: Boolean,
+    default: false
+  },
+}, {
+  timestamps: {
+    // 创建日期
+    createdAt: 'createdAt',
+    // 更新日期
+    updatedAt: 'updatedAt'
+  }
 });
 
 // noticeOneSchema.index({ toId: 1 });
 // noticeOneSchema.index({ toId: 1, createAt: -1, deleted: 1 });
 
-noticeOneSchema.index({ type: 1, fromId: 1, toId: 1, postId: 1, commentId: 1, replyId: 1 }, { unique: true });
+noticeOneSchema.index({
+  type: 1,
+  fromId: 1,
+  toId: 1,
+  postId: 1,
+  commentId: 1,
+  replyId: 1
+}, {
+  unique: true
+});
 
 let model = mongoose.model('NoticeOne', noticeOneSchema);
 

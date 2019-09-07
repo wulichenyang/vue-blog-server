@@ -5,17 +5,37 @@ let BaseModel = require('./BaseModel')
 // feed 推送消息
 const feedSchema = new Schema({
   // 推送目标用户id
-  userId: { type: Schema.Types.ObjectId, ref: 'User' },
+  userId: {
+    type: Schema.Types.ObjectId,
+    ref: 'User'
+  },
   // 推送文章类别id
-  categoryId: { type: Schema.Types.ObjectId, ref: 'Category' },
+  categoryId: {
+    type: Schema.Types.ObjectId,
+    ref: 'Category'
+  },
   // 推送文章id
-  postId: { type: Schema.Types.ObjectId, ref: 'Post' },
+  postId: {
+    type: Schema.Types.ObjectId,
+    ref: 'Post'
+  },
   // 推送评论id
-  commentId: { type: Schema.Types.ObjectId, ref: 'Comment' },
+  commentId: {
+    type: Schema.Types.ObjectId,
+    ref: 'Comment'
+  },
   // 推送回复id
-  replyId: { type: Schema.Types.ObjectId, ref: 'Reply' },
-  // 创建时间
-  createAt: { type: Date, default: Date.now() }
+  replyId: {
+    type: Schema.Types.ObjectId,
+    ref: 'Reply'
+  },
+}, {
+  timestamps: {
+    // 创建日期
+    createdAt: 'createdAt',
+    // 更新日期
+    updatedAt: 'updatedAt'
+  }
 });
 
 // // TODO：
@@ -26,7 +46,15 @@ const feedSchema = new Schema({
 // });
 
 // 添加索引
-feedSchema.index({ userId: 1, categoryId: 1, postId: 1, commentId: 1, replyId: 1 }, { unique: true });
+feedSchema.index({
+  userId: 1,
+  categoryId: 1,
+  postId: 1,
+  commentId: 1,
+  replyId: 1
+}, {
+  unique: true
+});
 
 let model = mongoose.model('Feed', feedSchema);
 

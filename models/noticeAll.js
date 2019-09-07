@@ -11,19 +11,42 @@ let BaseModel = require('./BaseModel')
  */
 const noticeAllSchema = new Schema({
   // 发送人
-  fromId: { type: Schema.Types.ObjectId, ref: 'User' },
+  fromId: {
+    type: Schema.Types.ObjectId,
+    ref: 'User'
+  },
   // 接收人
-  toId: [{ type: Schema.Types.ObjectId, ref: 'User' }],
+  toId: [{
+    type: Schema.Types.ObjectId,
+    ref: 'User'
+  }],
   // 信息的类型(comment/reply)
-  type: { type: String, enum: ['comment', 'reply']},
+  type: {
+    type: String,
+    enum: ['comment', 'reply']
+  },
   // 消息目标的id(comment/reply)
-  targetId: { type: Schema.Types.ObjectId },
-  // 创建日期
-  createAt: { type: Date, default: Date.now() }
+  targetId: {
+    type: Schema.Types.ObjectId
+  },
+}, {
+  timestamps: {
+    // 创建日期
+    createdAt: 'createdAt',
+    // 更新日期
+    updatedAt: 'updatedAt'
+  }
 });
 
 // 添加索引
-noticeAllSchema.index({ fromId: 1, toId: 1, targetId: 1, type: 1 }, { unique: true });
+noticeAllSchema.index({
+  fromId: 1,
+  toId: 1,
+  targetId: 1,
+  type: 1
+}, {
+  unique: true
+});
 
 let model = mongoose.model('NoticeAll', noticeAllSchema);
 

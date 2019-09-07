@@ -5,22 +5,42 @@ let BaseModel = require('./BaseModel')
 // 一级评论
 let commentSchema = new Schema({
   // 所属文章id
-  postId: { type: Schema.Types.ObjectId, ref: 'Post' },
+  postId: {
+    type: Schema.Types.ObjectId,
+    ref: 'Post'
+  },
   // 评论用户id
-  author: { type: Schema.Types.ObjectId, ref: 'User' },
+  author: {
+    type: Schema.Types.ObjectId,
+    ref: 'User'
+  },
   // 评论内容
-  content: { type: String, defualt: '' },
+  content: {
+    type: String,
+    defualt: ''
+  },
   // 点赞数
-  likeCount: { type: Number, default: 0 },
+  likeCount: {
+    type: Number,
+    default: 0
+  },
   // 回复（二级评论）ids
-  reply: [{ type: Schema.Types.ObjectId, ref: 'Reply' }],
+  reply: [{
+    type: Schema.Types.ObjectId,
+    ref: 'Reply'
+  }],
   // 评论状态 发布/草稿
-  state: { type: String, enum: ['published', 'draft'] },
-  // 评论日期（还用于sort）
-  createAt: { type: Date, defualt: Date.now() },
-  // 修改日期
-  updateAt: { type: Date, default: Date.now() },
-
+  state: {
+    type: String,
+    enum: ['published', 'draft']
+  },
+}, {
+  timestamps: {
+    // 创建日期
+    createdAt: 'createdAt',
+    // 更新日期
+    updatedAt: 'updatedAt'
+  }
 });
 
 let model = mongoose.model('Comment', commentSchema);

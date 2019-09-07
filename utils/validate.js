@@ -1,3 +1,5 @@
+const xss = require('xss')
+
 module.exports = {
 
   /**
@@ -43,6 +45,32 @@ module.exports = {
    * @return {[string, boolean]} [错误信息，验证通过与否]
    */
   checkPwd: (pwd) => {
+    // if(err){
+    //   return ['err info', false]
+    // }
+    return ['', true]
+  },
+
+  /**
+   * 检查文章分类格式正确性
+   * 
+   * @param {object} category 文章分类对象
+   * @return {[string, boolean]} [错误信息，验证通过与否]
+   */
+  checkCategory: ({name, brief, description, sort}) => {
+    // if(err){
+    //   return ['err info', false]
+    // }
+    return ['', true]
+  },
+
+  /**
+   * 检查文章格式正确性
+   * 
+   * @param {object} post 文章对象
+   * @return {[string, boolean]} [错误信息，验证通过与否]
+   */
+  checkPost: ({author, category, title, content, state}) => {
     // if(err){
     //   return ['err info', false]
     // }

@@ -216,7 +216,7 @@ class userController {
         // 注册手机号错误 回滚所有操作
         if (err) {
 
-          // 回滚
+          // 回滚 TODO:
 
 
           // 返回错误信息
@@ -282,7 +282,7 @@ class userController {
   }
 
   /**
-   * 获取用户自身信息
+   * 获取用户自身详细信息
    * 
    * @param ctx
    * @param next
@@ -293,18 +293,51 @@ class userController {
   }
 
   /**
-   * 获取某用户简略信息（包括自己）
+   * 获取某用户简略信息
    * 
    * @param ctx
    * @param next
    * @return {Promise.<void>}
    */
-  static async getOtherUser(ctx, next) {
+  static async getUserBrief(ctx, next) {
 
   }
 
   /**
-   * 更新用户信息
+   * 获取某用户详细信息（管理员查看）
+   * 
+   * @param ctx
+   * @param next
+   * @return {Promise.<void>}
+   */
+  static async getUserDetail(ctx, next) {
+
+  }
+
+  /**
+   * 获取注册用户列表（管理员查看）
+   * 
+   * @param ctx
+   * @param next
+   * @return {Promise.<void>}
+   */
+  static async getUserList(ctx, next) {
+    //
+  }
+
+  /**
+   * 删除用户（管理员操作）
+   * 
+   * @param ctx
+   * @param next
+   * @return {Promise.<void>}
+   */
+  static async deleteUser(ctx, next) {
+    //
+  }
+
+  /**
+   * 更新用户自身信息（用户）
    * 
    * @param ctx
    * @param next
@@ -315,7 +348,7 @@ class userController {
   }
 
   /**
-   * 重置密码
+   * 重置用户自身密码
    * 
    * @param ctx
    * @param next
