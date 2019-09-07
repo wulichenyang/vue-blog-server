@@ -1,7 +1,9 @@
 const router = require('koa-router')()
 const UserController = require('../controllers/user')
-const userSelfAuth = require('../middleware/userAuth')
-const jwtAuth  = require('../middleware/jwtAuth')
+const {
+  userAuth,
+  adminAuth
+} = require('../middleware/auth')
 // router.prefix('/user')
 
 // 用户注册
@@ -15,18 +17,18 @@ router.post('/signup', UserController.signUp)
 router.post('/signin', UserController.signIn)
 
 // 用户退出
-router.get('/signout', jwtAuth, UserController.signOut)
+router.get('/signout', userAuth, UserController.signOut)
 
 // 获取用户自身设置信息
-router.get('/userself', jwtAuth, UserController.getUserSelf)
+router.get('/userself', userAuth, UserController.getUserSelf)
 
 // 获取某用户信息
 router.get('/users/:id', UserController.getOtherUser)
 
 // 更改用户信息
-router.put('/users/:id', jwtAuth, UserController.updateUserDetail)
+router.put('/users/:id', userAuth, UserController.updateUserDetail)
 
 // 重置密码
-router.put('/resetPwd', jwtAuth, UserController.resetPwd)
+router.put('/resetPwd', userAuth, UserController.resetPwd)
 
 module.exports = router

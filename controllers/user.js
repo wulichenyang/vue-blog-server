@@ -21,9 +21,10 @@ class userController {
 
   /**
    * 注册总接口
+   * 
    * @param ctx
    * @param next
-   * @returns {Promise.<void>}
+   * @return {Promise.<void>}
    */
   static async signUp(ctx, next) {
     const {
@@ -46,9 +47,10 @@ class userController {
 
   /**
    * 登录总接口
+   * 
    * @param ctx
    * @param next
-   * @returns {Promise.<void>}
+   * @return {Promise.<void>}
    */
   static async signIn(ctx, next) {
     const {
@@ -71,9 +73,10 @@ class userController {
 
   /**
    * 手机号注册
+   * 
    * @param ctx
    * @param next
-   * @returns {Promise.<void>}
+   * @return {Promise.<void>}
    */
   static async signUpByPhone(ctx, next) {
     let {
@@ -237,9 +240,10 @@ class userController {
 
   /**
    * 邮箱注册
+   * 
    * @param ctx
    * @param next
-   * @returns {Promise.<void>}
+   * @return {Promise.<void>}
    */
   static async signUpByEmail(ctx, next) {
 
@@ -249,7 +253,7 @@ class userController {
    * 手机号登录
    * @param ctx
    * @param next
-   * @returns {Promise.<void>}
+   * @return {Promise.<void>}
    */
   static async signInByPhone(ctx, next) {
 
@@ -257,9 +261,10 @@ class userController {
 
   /**
    * 邮箱登录
+   * 
    * @param ctx
    * @param next
-   * @returns {Promise.<void>}
+   * @return {Promise.<void>}
    */
   static async signInByEmail(ctx, next) {
 
@@ -267,9 +272,10 @@ class userController {
 
   /**
    * 用户登出
+   * 
    * @param ctx
    * @param next
-   * @returns {Promise.<void>}
+   * @return {Promise.<void>}
    */
   static async signOut(ctx, next) {
 
@@ -277,9 +283,10 @@ class userController {
 
   /**
    * 获取用户自身信息
+   * 
    * @param ctx
    * @param next
-   * @returns {Promise.<void>}
+   * @return {Promise.<void>}
    */
   static async getUserSelf(ctx, next) {
 
@@ -287,9 +294,10 @@ class userController {
 
   /**
    * 获取某用户简略信息（包括自己）
+   * 
    * @param ctx
    * @param next
-   * @returns {Promise.<void>}
+   * @return {Promise.<void>}
    */
   static async getOtherUser(ctx, next) {
 
@@ -297,9 +305,10 @@ class userController {
 
   /**
    * 更新用户信息
+   * 
    * @param ctx
    * @param next
-   * @returns {Promise.<void>}
+   * @return {Promise.<void>}
    */
   static async updateUserDetail(ctx, next) {
     // 
@@ -307,9 +316,10 @@ class userController {
 
   /**
    * 重置密码
+   * 
    * @param ctx
    * @param next
-   * @returns {Promise.<void>}
+   * @return {Promise.<void>}
    */
   static async resetPwd(ctx, next) {
   }

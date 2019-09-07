@@ -4,7 +4,6 @@
  * 或者使用 try...catch 语句，捕获错误信息，返回给用户
  * @class BaseModel
  */
-
 class BaseModel {
   constructor(model) {
     this.model = model
