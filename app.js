@@ -3,6 +3,7 @@ const {
   ApiPrefix
 } = require('./config/index')
 const app = new Koa()
+const runDB = require('./mongodb/db')
 const views = require('koa-views')
 const json = require('koa-json')
 const onerror = require('koa-onerror')
@@ -62,6 +63,9 @@ app.use(async (ctx, next) => {
   const ms = new Date() - start
   console.log(`${ctx.method} ${ctx.url} - ${ms}ms`)
 })
+
+// 启动MongoDB
+runDB()
 
 // 根路由
 const rootRouter = new Router()

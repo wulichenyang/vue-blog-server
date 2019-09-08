@@ -156,86 +156,109 @@ class UserController {
         err: '该手机号已注册'
       })
       return
-    } else { // 手机号可用
-
-      // 检查昵称是否已注册
-      let findUser;
-      [err, findUser] = await To(userModel.fineOne({
-        query: {
-          nickname
-        }
-      }))
-
-      // 查询错误
-      if (err) {
-        internalErrRes({
-          ctx,
-          err
-        })
-        return
-      }
-
-      // 昵称已注册
-      if (findUser.length >= 1) {
-        internalErrRes({
-          ctx,
-          err: '该昵称已注册'
-        })
-        return
-      } else { // 昵称可用
-
-        // 注册手机号和用户
-        // 注册用户
-        let savedUser;
-        [err, savedUser] = await To(userModel.save({
-          data: {
-            password,
-            nickname,
-          }
-        }))
-
-        // 注册用户错误
-        if (err) {
-          internalErrRes({
-            ctx,
-            err
-          })
-          return
-        }
-
-        // 注册用户成功
-        // 注册手机号
-        let savedPhone;
-        [err, savedPhone] = await To(phoneModel.save({
-          data: {
-            phone,
-            userId: savedUser._id
-          }
-        }))
-
-        // 注册手机号错误 回滚所有操作
-        if (err) {
-
-          // 回滚 TODO:
-
-
-          // 返回错误信息
-          internalErrRes({
-            ctx,
-            err
-          })
-          return
-        }
-
-        // 注册手机号成功
-        // 返回注册成功信息
-        successRes({
-          ctx,
-          message: '注册成功，请登录'
-        })
-        return
-      }
     }
+
+    // 手机号可用
+    // 检查昵称是否已注册
+    let findUser;
+    [err, findUser] = await To(userModel.fineOne({
+      query: {
+        nickname
+      }
+    }))
+
+    // 查询错误
+    if (err) {
+      internalErrRes({
+        ctx,
+        err
+      })
+      return
+    }
+
+    // 昵称已注册
+    if (findUser.length >= 1) {
+      internalErrRes({
+        ctx,
+        err: '该昵称已注册'
+      })
+      return
+    }
+
+    // 昵称可用
+    // 注册手机号和用户
+    // 注册用户
+    let savedUser;
+
+    // 关联表操作-开启一个事务
+    let txErr, isTxOk;
+    [txErr, isTxOk] = await userModel.startTransaction();
+
+    // 事务开启冲突
+    if (!isTxOk) {
+
+      // 返回错误信息
+      internalErrRes({
+        ctx,
+        err: txErr
+      })
+      return
+    }
+
+    // 保存用户信息
+    [err, savedUser] = await To(userModel.save({
+      data: {
+        password,
+        nickname,
+      }
+    }))
+
+    // 注册用户错误
+    if (err) {
+      internalErrRes({
+        ctx,
+        err
+      })
+
+      // 事务回滚
+      await userModel.rollback();
+      return
+    }
+
+    // 注册用户成功
+    // 注册手机号
+    let savedPhone;
+    [err, savedPhone] = await To(phoneModel.save({
+      data: {
+        phone,
+        userId: savedUser._id
+      }
+    }))
+
+    // 注册手机号错误 回滚所有操作
+    if (err) {
+
+      // 返回错误信息
+      internalErrRes({
+        ctx,
+        err
+      })
+
+      // 用户信息保存事务回滚
+      await userModel.rollback()
+      return
+    }
+
+    // 关联操作成功，提交事务
+    await userModel.endTransaction()
+
+    // 注册手机号成功
+    // 返回注册成功信息
+    successRes({
+      ctx,
+      message: '注册成功，请登录'
+    })
+    return
   }
 
   /**
@@ -354,8 +377,7 @@ class UserController {
    * @param next
    * @return {Promise.<void>}
    */
-  static async resetPwd(ctx, next) {
-  }
+  static async resetPwd(ctx, next) {}
 }
 
 module.exports = UserController;

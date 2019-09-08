@@ -2,7 +2,9 @@
 
 ## Project Technology Stack
 
-### koa 2 + mongoose
+```
+koa 2 + mongoose
+```
 
 ## Project API Style
 
