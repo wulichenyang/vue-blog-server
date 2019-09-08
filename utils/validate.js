@@ -76,4 +76,30 @@ module.exports = {
     // }
     return ['', true]
   },
+
+  /**
+   * 检查评论格式正确性
+   * 
+   * @param {object} comment 评论对象
+   * @return {[string, boolean]} [错误信息，验证通过与否]
+   */
+  checkComment: ({postId, author, content, state}) => {
+    // if(err){
+    //   return ['err info', false]
+    // }
+    return ['', true]
+  },
+
+  /**
+   * 检查回复格式正确性
+   * 
+   * @param {object} reply 回复对象
+   * @return {[string, boolean]} [错误信息，验证通过与否]
+   */
+  checkReply: ({commentId, fromId, toId, content, state}) => {
+    // if(err){
+    //   return ['err info', false]
+    // }
+    return ['', true]
+  },
 }

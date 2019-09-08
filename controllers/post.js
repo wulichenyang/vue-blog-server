@@ -9,7 +9,7 @@ const {
   checkPost
 } = require('../utils/validate')
 
-class postController {
+class PostController {
 
   /**
    * 添加文章
@@ -34,7 +34,7 @@ class postController {
   }
 
   /**
-   * 查看文章详细信息
+   * 查看文章详细信息（populate评论？no，单独在getComment时获取comments和populate(replies)）
    * 
    * @param ctx
    * @param next
@@ -112,4 +112,4 @@ class postController {
 
 }
 
-module.exports = postController;
+module.exports = PostController;

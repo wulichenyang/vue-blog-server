@@ -11,8 +11,8 @@ let {
   successRes
 } = require('../utils/response')
 
-class emailController {
+class EmailController {
 
 }
 
-module.exports = emailController;
+module.exports = EmailController;

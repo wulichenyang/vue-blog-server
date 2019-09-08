@@ -9,7 +9,7 @@ const {
   checkCategory
 } = require('../utils/validate')
 
-class categoryController {
+class CategoryController {
 
   /**
    * 添加文章分类
@@ -79,4 +79,4 @@ class categoryController {
 
 }
 
-module.exports = categoryController;
+module.exports = CategoryController;

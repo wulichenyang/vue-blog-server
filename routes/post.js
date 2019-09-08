@@ -12,7 +12,7 @@ router.post('/categories/:id/posts', userAuth, PostController.addPost)
 // 删除文章（需检验是否是属于本人的文章）
 router.delete('/posts/:id', userAuth, PostController.deletePost)
 
-// 获取文章详细信息
+// 获取文章详细信息（只返回文章信息，不返回评论信息）
 router.get('/posts/:id', PostController.getPost)
 
 // 获取所有文章列表（文章汇总）

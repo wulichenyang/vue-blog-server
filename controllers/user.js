@@ -17,7 +17,7 @@ const {
   successRes
 } = require('../utils/response')
 
-class userController {
+class UserController {
 
   /**
    * 注册总接口
@@ -32,10 +32,10 @@ class userController {
     } = ctx.request.query
     // 手机号注册
     if (by === 'phone') {
-      await userController.signUpByPhone(ctx, next)
+      await UserController.signUpByPhone(ctx, next)
       // 邮箱号注册
     } else if (by === 'email') {
-      await userController.signUpByEmail(ctx, next)
+      await UserController.signUpByEmail(ctx, next)
     } else {
       internalErrRes({
         ctx,
@@ -58,10 +58,10 @@ class userController {
     } = ctx.request.query
     // 手机号注册
     if (by === 'phone') {
-      await userController.signInByPhone(ctx, next)
+      await UserController.signInByPhone(ctx, next)
       // 邮箱号注册
     } else if (by === 'email') {
-      await userController.signInByEmail(ctx, next)
+      await UserController.signInByEmail(ctx, next)
     } else {
       internalErrRes({
         ctx,
@@ -358,4 +358,4 @@ class userController {
   }
 }
 
-module.exports = userController;
+module.exports = UserController;

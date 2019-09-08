@@ -22,6 +22,6 @@ router.get('/categories', CategoryController.getCategoryList)
 router.get('/categories?type=follow', userAuth, CategoryController.getFollowCategoryList)
 
 // 更新文章分类
-router.put('/categories/:id', adminAuth, CategoryController.getCategory)
+router.put('/categories/:id', adminAuth, CategoryController.updateCategory)
 
 module.exports = router

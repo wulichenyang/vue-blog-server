@@ -11,8 +11,8 @@ const {
   successRes
 } = require('../utils/response')
 
-class phoneController {
+class PhoneController {
 
 }
 
-module.exports = phoneController;
+module.exports = PhoneController;
