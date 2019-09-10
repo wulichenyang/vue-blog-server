@@ -2,10 +2,7 @@ let userModel = require('../models/user')
 let phoneModel = require('../models/phone')
 let emailModel = require('../models/email')
 let To = require('../utils/to')
-let {
-  internalErrRes,
-  successRes
-} = require('../utils/response')
+
 const xss = require('xss')
 const {
   checkPhone,

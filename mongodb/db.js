@@ -1,5 +1,6 @@
 // mongodb 启动脚本
 const mongoose = require('mongoose')
+mongoose.set('useCreateIndex', true);
 
 const {
   DB_URL
@@ -10,7 +11,7 @@ const {
  * 
  * @return {void}
  */
-const runDb = () => {
+const runDB = () => {
   mongoose.connect(DB_URL, {
     useNewUrlParser: true
   }, function (err) {

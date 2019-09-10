@@ -69,7 +69,7 @@ const verifyToken = (ctx, callback) => {
  * @return {Promise.<void>}
  */
 exports.userAuth = async (ctx, next) => {
-  verifyToken(ctx, (isOk, status, message) => {
+  verifyToken(ctx, async (isOk, status, message) => {
 
     // token 验证成功
     if (isOk) {
@@ -96,7 +96,7 @@ exports.userAuth = async (ctx, next) => {
  * @return {Promise.<void>}
  */
 exports.adminAuth = async (ctx, next) => {
-  verifyToken(ctx, (isOk, status, message) => {
+  verifyToken(ctx, async (isOk, status, message) => {
 
     // token 验证成功
     if (isOk) {

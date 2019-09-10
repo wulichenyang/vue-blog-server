@@ -1,80 +1,31 @@
-// https://github.com/log4js-node/log4js-node
-const log4js = require('log4js');
+const path = require('path');
+const log4js = require('koa-log4');
 
-module.exports = app => {
-
-  // ALL < TRACE < DEBUG < INFO < WARN < ERROR < FATAL < MARK < OFF
-  log4js.configure({
-    appenders: {
-
-      // console: {
-      //   type: "console"
-      // },
-
-      // 输出trace、debug
-      _trace: {
-        type: 'file',
-        filename: 'logs/trace',
-        pattern: "yyyy-MM-dd.log",
-        alwaysIncludePattern: true,
-        maxLogSize: 31457280
-      },
-      trace: {
-        type: "logLevelFilter",
-        appender: "_trace",
-        level: "trace",
-        maxLevel: "debug"
-      },
-
-      // 输出 info。请求日志
-      _info: {
-        type: 'file',
-        filename: 'logs/info',
-        pattern: "yyyy-MM-dd.log",
-        alwaysIncludePattern: true,
-        maxLogSize: 31457280
-      },
-      info: {
-        type: "logLevelFilter",
-        appender: "_info",
-        level: "info",
-        maxLevel: "info"
-      },
-
-      // 输出 warn、error、fatal
-      _error: {
-        type: 'file',
-        filename: 'logs/error',
-        pattern: "yyyy-MM-dd.log",
-        alwaysIncludePattern: true,
-        maxLogSize: 31457280
-      },
-      error: {
-        type: "logLevelFilter",
-        appender: "_error",
-        level: "warn",
-        maxLevel: "fatal"
-      }
+// 配置log文件路径信息
+log4js.configure({
+  appenders: {
+    access: {
+      type: 'dateFile',
+      pattern: '-yyyy-MM-dd.log', //生成文件的规则
+      filename: path.resolve(__dirname, '../logs/access.log') //生成文件名
     },
-    categories: {
-      default: {
-        // 在控制台显示
-        appenders: ['trace', 'info', 'error'],
-        level: 'all'
-      }
+    application: {
+      type: 'dateFile',
+      pattern: '-yyyy-MM-dd.log',
+      filename: path.resolve(__dirname, '../logs/application.log')
+    },
+    out: {
+      type: 'console'
     }
-  });
+  },
+  categories: {
+    default: { appenders: [ 'out' ], level: 'info' },
+    access: { appenders: [ 'access' ], level: 'info' },
+    application: { appenders: [ 'application' ], level: 'WARN'}
+  }
+});
 
-  app.use(log4js.connectLogger(log4js.getLogger("http"), {
-    level: 'auto'
-  }));
-
-  // var log = log4js.getLogger("app");
-  // log.trace('Entering cheese testing');
-  // log.debug('Got cheese.');
-  // log.info('Cheese is Comté.');
-  // log.warn('Cheese is quite smelly.');
-  // log.error('Cheese is too ripe!');
-  // log.fatal('Cheese was breeding ground for listeria.');
-
-}
+//记录所有访问级别的日志
+exports.log4accessLogger = () => log4js.koaLogger(log4js.getLogger('access')); 
+//记录所有应用级别的日志
+exports.log4Applicationlogger = log4js.getLogger('application');  
