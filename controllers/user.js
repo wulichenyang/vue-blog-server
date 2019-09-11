@@ -131,7 +131,7 @@ class UserController {
 
     // 查找手机号是否已注册
     let findPhone;
-    [err, findPhone] = await To(phoneModel.fineOne({
+    [err, findPhone] = await To(phoneModel.findOne({
       query: {
         phone
       }
@@ -146,8 +146,9 @@ class UserController {
       return
     }
 
+    console.log('findPhone', findPhone)
     // 手机号已注册
-    if (findPhone.length >= 1) {
+    if (findPhone) {
       internalErrRes({
         ctx,
         err: '该手机号已注册'
@@ -158,7 +159,7 @@ class UserController {
     // 手机号可用
     // 检查昵称是否已注册
     let findUser;
-    [err, findUser] = await To(userModel.fineOne({
+    [err, findUser] = await To(userModel.findOne({
       query: {
         nickname
       }
@@ -174,7 +175,7 @@ class UserController {
     }
 
     // 昵称已注册
-    if (findUser.length >= 1) {
+    if (findUser) {
       internalErrRes({
         ctx,
         err: '该昵称已注册'
