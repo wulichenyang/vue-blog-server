@@ -7,8 +7,9 @@ koa 2 + mongoose
 ```
 
 ## Project API Style
-
-### RESTful API
+```
+RESTful API
+```
 
 ## Project setup
 ```

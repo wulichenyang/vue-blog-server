@@ -3,6 +3,28 @@ const {
   privateKey
 } = require('../config')
 
+
+/**
+ * 使用用户信息和密钥生成 jwt
+ * 
+ * @param {object {userId, nickname, phone?, email?, role}} userinfo - 用户信息
+ * @param {number} - token 过期日
+ * @return {string} - 生成的 token 串
+ */
+exports.genToken = (userinfo, expireDay) => {
+  let token = jwt.sign({
+      ...userinfo // 要生成token的主题信息
+    },
+
+    // 这是加密的 key（密钥）
+    privateKey, {
+
+      // 24 小时 * expireDay 天 过期
+      expiresIn: 60 * 60 * 24 * expireDay
+    })
+  return token
+}
+
 /**
  * 验证用户 token，取用户 id 放入 ctx
  * 
@@ -42,7 +64,8 @@ const verifyToken = (ctx, callback) => {
       return callback(false, 401, '登录超时');
     } else { // jwt 验证成功
 
-      // 保存 token 里 username 信息
+      // 保存 token 里 user 信息
+      ctx.nickname = decoded.nickname
       ctx.email = decoded.email
       ctx.phone = decoded.phone
       ctx.userId = decoded.userId

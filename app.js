@@ -1,7 +1,9 @@
 const Koa = require('koa')
 const {
-  ApiPrefix
+  ApiPrefix,
+  koaSessionConfig,
 } = require('./config/index')
+const session = require('koa-session');
 const app = new Koa()
 const runDB = require('./mongodb/db')
 const views = require('koa-views')
@@ -36,6 +38,9 @@ const limiter = RateLimit.middleware({
 app.use(log4accessLogger()) 
 // 抵御一些比较常见的安全web安全隐患
 app.use(helmet())
+// 使用 koa-session 缓存
+app.use(session(koaSessionConfig, app));
+
 // error handler
 onerror(app)
 
