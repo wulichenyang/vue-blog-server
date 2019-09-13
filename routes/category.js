@@ -7,10 +7,10 @@ const {
 // router.prefix('/categories')
 
 // 添加文章分类
-router.post('/categories', adminAuth, CategoryController.addCategory)
+router.post('/admin/categories', adminAuth, CategoryController.addCategory)
 
 // 删除文章分类
-router.delete('/categories/:id', adminAuth, CategoryController.deleteCategory)
+router.delete('/admin/categories/:id', adminAuth, CategoryController.deleteCategory)
 
 // 获取文章分类详细信息
 router.get('/categories/:id', CategoryController.getCategory)
@@ -22,6 +22,6 @@ router.get('/categories', CategoryController.getCategoryList)
 router.get('/categories?type=follow', userAuth, CategoryController.getFollowCategoryList)
 
 // 更新文章分类
-router.put('/categories/:id', adminAuth, CategoryController.updateCategory)
+router.put('/admin/categories/:id', adminAuth, CategoryController.updateCategory)
 
 module.exports = router

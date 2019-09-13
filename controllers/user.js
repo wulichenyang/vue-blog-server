@@ -1,10 +1,15 @@
 let userModel = require('../models/user')
 let phoneModel = require('../models/phone')
 let emailModel = require('../models/email')
+const {
+  userDetailSelect,
+  userBriefSelect
+} = require('../config/select')
 let To = require('../utils/to')
 const {
   parsePwd,
-  encryptPwd
+  encryptPwd,
+  genRSAKey
 } = require('../utils/rsa')
 const xss = require('xss')
 const {
@@ -12,6 +17,7 @@ const {
   checkEmail,
   checkNickname,
   checkPwd,
+  checkUserUpdateObj,
 } = require('../utils/validate')
 const {
   genToken
@@ -530,7 +536,7 @@ class UserController {
     }))
 
     // 查询错误，返回错误信息
-    if(err) {
+    if (err) {
       internalErrRes({
         ctx,
         err
@@ -539,7 +545,7 @@ class UserController {
     }
 
     // 用户不存在，返回错误信息
-    if(!findUser) {
+    if (!findUser) {
       internalErrRes({
         ctx,
         err: '手机号或密码错误'
@@ -554,7 +560,7 @@ class UserController {
     [err, isOk] = checkPwd(parsedPwd)
 
     // 密码格式错误，返回错误信息
-    if(err) {
+    if (err) {
       internalErrRes({
         ctx,
         err
@@ -566,7 +572,7 @@ class UserController {
     let encryptedPwd = encryptPwd(parsedPwd)
 
     // 密码不正确，返回错误信息
-    if(encryptedPwd !== findUser.password) {
+    if (encryptedPwd !== findUser.password) {
       internalErrRes({
         ctx,
         err: '手机号或密码错误'
@@ -660,7 +666,7 @@ class UserController {
     }))
 
     // 查询错误，返回错误信息
-    if(err) {
+    if (err) {
       internalErrRes({
         ctx,
         err
@@ -669,7 +675,7 @@ class UserController {
     }
 
     // 用户不存在，返回错误信息
-    if(!findUser) {
+    if (!findUser) {
       internalErrRes({
         ctx,
         err: '邮箱号或密码错误'
@@ -684,7 +690,7 @@ class UserController {
     [err, isOk] = checkPwd(parsedPwd)
 
     // 密码格式错误，返回错误信息
-    if(err) {
+    if (err) {
       internalErrRes({
         ctx,
         err
@@ -696,7 +702,7 @@ class UserController {
     let encryptedPwd = encryptPwd(parsedPwd)
 
     // 密码不正确，返回错误信息
-    if(encryptedPwd !== findUser.password) {
+    if (encryptedPwd !== findUser.password) {
       internalErrRes({
         ctx,
         err: '邮箱号或密码错误'
@@ -733,7 +739,74 @@ class UserController {
    * @return {Promise.<void>}
    */
   static async signOut(ctx, next) {
+    ctx.session = null
+    ctx.nickname = null
+    ctx.email = null
+    ctx.phone = null
+    ctx.userId = null
+    ctx.role = null
+    return successRes({
+      ctx,
+      message: '退出成功'
+    })
+  }
 
+  /**
+   * 获取用户手机
+   * 
+   * @param ctx
+   * @param {ObjectId} userId
+   * @return {Promise.<[string, object]>}
+   */
+  static async getUserPhone(ctx, userId) {
+    let err, findPhone;
+
+    // 查找手机
+    [err, findPhone] = await To(phoneModel.findOne({
+      query: {
+        userId
+      },
+    }))
+
+    // 查找失败
+    if (err) {
+      return [err, null]
+    }
+
+    // 没找到（未绑定）
+    if (!findPhone) {
+      return ['', null]
+    }
+    return ['', findPhone]
+  }
+
+  /**
+   * 获取用户邮箱
+   * 
+   * @param ctx
+   * @param {ObjectId} userId
+   * @return {Promise.<[string, object]>}
+   */
+  static async getUserEmail(ctx, userId) {
+    let err, findEmail;
+
+    // 查找邮箱
+    [err, findEmail] = await To(emailModel.findOne({
+      query: {
+        userId
+      },
+    }))
+
+    // 查找失败
+    if (err) {
+      return [err, null]
+    }
+
+    // 没找到（未绑定）
+    if (!findEmail) {
+      return ['', null]
+    }
+    return ['', findEmail]
   }
 
   /**
@@ -744,7 +817,7 @@ class UserController {
    * @return {Promise.<void>}
    */
   static async getUserSelf(ctx, next) {
-
+    await UserController.getUserById(ctx, next, ctx.userId, userDetailSelect, true)
   }
 
   /**
@@ -755,7 +828,10 @@ class UserController {
    * @return {Promise.<void>}
    */
   static async getUserBrief(ctx, next) {
-
+    let {
+      id
+    } = ctx.params
+    await UserController.getUserById(ctx, next, id, userBriefSelect, false)
   }
 
   /**
@@ -766,7 +842,104 @@ class UserController {
    * @return {Promise.<void>}
    */
   static async getUserDetail(ctx, next) {
+    let {
+      id
+    } = ctx.params
+    await UserController.getUserById(ctx, next, id, userDetailSelect, true)
+  }
 
+  /**
+   * 根据用户Id和select返回用户信息
+   * 
+   * @param ctx
+   * @param next
+   * @param {ObjectId} userId
+   * @param {object} select 返回属性
+   * @param {object} isDetail 是否返回详细信息（包括手机、邮箱）
+   * @return {Promise.<void>}
+   */
+  static async getUserById(ctx, next, userId, select, isDetail) {
+    let err, findUser;
+    [err, findUser] = await To(userModel.findOne({
+      query: {
+        _id: userId
+      },
+      select
+    }))
+
+    // 查找错误，返回错误信息
+    if (err) {
+      internalErrRes({
+        ctx,
+        err
+      })
+      return
+    }
+
+    // 用户不存在，返回错误信息
+    if (!findUser) {
+      internalErrRes({
+        ctx,
+        err: '未找到用户'
+      })
+      return
+    }
+
+    // 返回手机和邮箱信息
+    if (isDetail) {
+
+      // 查找phone信息
+      let findPhone;
+      [err, findPhone] = await getUserPhone(ctx, userId)
+
+      // 查找错误，返回错误信息
+      if (err) {
+        internalErrRes({
+          ctx,
+          err
+        })
+        return
+      }
+
+      // phone 不存在，（未绑定）
+      if (!findPhone) {
+        findUser.phone = null
+      } else {
+        // 找到 phone，加入用户信息
+        findUser.phone = findPhone.phone
+      }
+
+      // 查找email信息
+      let findEmail;
+      [err, findEmail] = await getUserEmail(ctx, userId)
+
+      // 查找错误，返回错误信息
+      if (err) {
+        internalErrRes({
+          ctx,
+          err
+        })
+        return
+      }
+
+      // email 不存在，（未绑定）
+      if (!findEmail) {
+        findUser.email = null
+      } else {
+        // 找到 email，加入用户信息
+        findUser.email = findEmail.email
+      }
+    }
+
+    // 返回用户信息
+    successRes({
+      ctx,
+      data: {
+        userinfo: findUser
+      },
+      message: 'OK'
+    })
+    return
   }
 
   /**
@@ -798,8 +971,63 @@ class UserController {
    * @param next
    * @return {Promise.<void>}
    */
-  static async updateUserDetail(ctx, next) {
-    // 
+  static async updateUserSelf(ctx, next) {
+    // 获取修改信息
+    const {
+      updateUserinfo
+    } = ctx.request.body
+    const userId = ctx.userId
+
+    // 更新信息
+    await UserController.updateUserDetailById(ctx, next, userId, updateUserinfo)
+  }
+
+  /**
+   * 其他触发更新用户信息（本人或非本人）
+   * 
+   * @param ctx
+   * @param next
+   * @param {ObjectId} userId 用户id
+   * @param {object} updateObj 需要修改的键值map
+   * @return {Promise.<void>}
+   */
+  static async updateUserDetailById(ctx, next, userId, updateObj) {
+    // 获取修改信息
+    let err, isOk
+
+    // 检查修改信息格式
+    [err, isOk] = checkUserUpdateObj(updateObj)
+    if (!isOk) {
+      internalErrRes({
+        ctx,
+        err
+      })
+      return
+    }
+
+    // 格式正确更新相应属性
+    let updateRes;
+    [err, updateRes] = await To(userModel.update({
+      query: {
+        _id: userId,
+      },
+      update: updateObj,
+    }))
+
+    // 更新失败，返回错误信息
+    if (err) {
+      internalErrRes({
+        ctx,
+        err
+      })
+      return
+    }
+
+    successRes({
+      ctx,
+      message: '更新用户信息成功'
+    })
+    return
   }
 
   /**
@@ -809,7 +1037,29 @@ class UserController {
    * @param next
    * @return {Promise.<void>}
    */
-  static async resetPwd(ctx, next) {}
+  static async resetPwd(ctx, next) {
+
+  }
+
+  /**
+   * 生成公钥私钥，返回公钥给用户
+   * 用户登录、注册时提前将公钥传递给用户，让用户加锁密码
+   * 私钥保存在会话中，用户登录、注册时解锁获得真实密码
+   * 
+   * @param ctx
+   * @param next
+   * @return {Promise.<void>}
+   */
+  static async genRSAKey(ctx, next) {
+    let publicKey = genRSAKey(ctx)
+    successRes({
+      ctx,
+      data: {
+        publicKey
+      },
+      message: 'OK'
+    })
+  }
 }
 
 module.exports = UserController;

@@ -1,5 +1,6 @@
 const xss = require('xss')
 
+// TODO:
 module.exports = {
 
   /**
@@ -97,6 +98,19 @@ module.exports = {
    * @return {[string, boolean]} [错误信息，验证通过与否]
    */
   checkReply: ({commentId, fromId, toId, content, state}) => {
+    // if(err){
+    //   return ['err info', false]
+    // }
+    return ['', true]
+  },
+
+  /**
+   * 检查更新用户对象格式
+   * 
+   * @param {object} reply 回复对象
+   * @return {[string, boolean]} [错误信息，验证通过与否]
+   */
+  checkUserUpdateObj: ({nickname, realname, role, gender, birth,  avatar, brief,  postCount, fansCount, likeCount, followPeople, followPeopleCount, followCategory, followCategoryCount, followPost, followPostCount, collectPost, collectPostCount, password}) => {
     // if(err){
     //   return ['err info', false]
     // }
