@@ -474,49 +474,125 @@ class UserController {
    */
   static async signInByPhone(ctx, next) {
     // 获取登录数据
-
+    const {
+      phone,
+      password
+    } = ctx.request.body
 
     // 检查手机号格式
-
+    let err, isOk;
+    [err, isOk] = checkPhone(phone)
 
     // 格式错误，返回错误信息
-
+    if (!isOk) {
+      internalErrRes({
+        ctx,
+        err
+      })
+      return
+    }
 
     // 查询手机号是否存在
+    let findPhone;
+    [err, findPhone] = await To(phoneModel.findOne({
+      query: {
+        phone
+      }
+    }))
 
+    // 查询出错，返回错误信息
+    if (err) {
+      internalErrRes({
+        ctx,
+        err
+      })
+      return
+    }
 
     // 手机号不存在，返回错误信息
-
+    if (!findPhone) {
+      internalErrRes({
+        ctx,
+        err: '手机号或密码错误'
+      })
+      return
+    }
 
     // 利用手机中的userId查询用户
+    const {
+      userId
+    } = findPhone
+    let findUser;
+    [err, findUser] = await To(userModel.findOne({
+      query: {
+        _id: userId
+      },
+    }))
 
+    // 查询错误，返回错误信息
+    if(err) {
+      internalErrRes({
+        ctx,
+        err
+      })
+      return
+    }
 
-    // 用户不存在
-
-
-    // 返回错误信息
-
+    // 用户不存在，返回错误信息
+    if(!findUser) {
+      internalErrRes({
+        ctx,
+        err: '手机号或密码错误'
+      })
+      return
+    }
 
     // 用私钥解密密码
-
+    let parsedPwd = parsePwd(ctx, password)
 
     // 检查密码格式？有必要？
-
+    [err, isOk] = checkPwd(parsedPwd)
 
     // 密码格式错误，返回错误信息
-
+    if(err) {
+      internalErrRes({
+        ctx,
+        err
+      })
+      return
+    }
 
     // 再次加密后对比数据库中的用户密码
-
+    let encryptedPwd = encryptPwd(parsedPwd)
 
     // 密码不正确，返回错误信息
+    if(encryptedPwd !== findUser.password) {
+      internalErrRes({
+        ctx,
+        err: '手机号或密码错误'
+      })
+      return
+    }
 
-
-    // 通过验证，利用用户信息生成jwt
-
+    // 通过验证，利用用户信息生成jwt，30天过期
+    let userinfo = {
+      userId: findUser._id,
+      nickname: findUser.nickname,
+      phone: findPhone.phone,
+      email: null,
+      role: findUser.role
+    }
+    let token = genToken(userinfo, 30)
 
     // 返回正确信息和 token 给用户，
-
+    successRes({
+      ctx,
+      data: {
+        token
+      },
+      message: '登录成功'
+    })
+    return
   }
 
   /**
@@ -527,7 +603,126 @@ class UserController {
    * @return {Promise.<void>}
    */
   static async signInByEmail(ctx, next) {
+    // 获取登录数据
+    const {
+      email,
+      password
+    } = ctx.request.body
 
+    // 检查邮箱号格式
+    let err, isOk;
+    [err, isOk] = checkEmail(email)
+
+    // 格式错误，返回错误信息
+    if (!isOk) {
+      internalErrRes({
+        ctx,
+        err
+      })
+      return
+    }
+
+    // 查询邮箱号是否存在
+    let findEmail;
+    [err, findEmail] = await To(emailModel.findOne({
+      query: {
+        email
+      }
+    }))
+
+    // 查询出错，返回错误信息
+    if (err) {
+      internalErrRes({
+        ctx,
+        err
+      })
+      return
+    }
+
+    // 邮箱号不存在，返回错误信息
+    if (!findEmail) {
+      internalErrRes({
+        ctx,
+        err: '邮箱号或密码错误'
+      })
+      return
+    }
+
+    // 利用邮箱号中的userId查询用户
+    const {
+      userId
+    } = findEmail
+    let findUser;
+    [err, findUser] = await To(userModel.findOne({
+      query: {
+        _id: userId
+      },
+    }))
+
+    // 查询错误，返回错误信息
+    if(err) {
+      internalErrRes({
+        ctx,
+        err
+      })
+      return
+    }
+
+    // 用户不存在，返回错误信息
+    if(!findUser) {
+      internalErrRes({
+        ctx,
+        err: '邮箱号或密码错误'
+      })
+      return
+    }
+
+    // 用私钥解密密码
+    let parsedPwd = parsePwd(ctx, password)
+
+    // 检查密码格式？有必要？
+    [err, isOk] = checkPwd(parsedPwd)
+
+    // 密码格式错误，返回错误信息
+    if(err) {
+      internalErrRes({
+        ctx,
+        err
+      })
+      return
+    }
+
+    // 再次加密后对比数据库中的用户密码
+    let encryptedPwd = encryptPwd(parsedPwd)
+
+    // 密码不正确，返回错误信息
+    if(encryptedPwd !== findUser.password) {
+      internalErrRes({
+        ctx,
+        err: '邮箱号或密码错误'
+      })
+      return
+    }
+
+    // 通过验证，利用用户信息生成jwt，30天过期
+    let userinfo = {
+      userId: findUser._id,
+      nickname: findUser.nickname,
+      phone: null,
+      email: findEmail.email,
+      role: findUser.role
+    }
+    let token = genToken(userinfo, 30)
+
+    // 返回正确信息和 token 给用户，
+    successRes({
+      ctx,
+      data: {
+        token
+      },
+      message: '登录成功'
+    })
+    return
   }
 
   /**
