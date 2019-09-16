@@ -1,6 +1,6 @@
 let mongoose = require('mongoose');
 let Schema = mongoose.Schema;
-let BaseModel = require('./BaseModel')
+let BaseModel = require('./BaseModel');
 
 // feed 推送消息
 const feedSchema = new Schema({

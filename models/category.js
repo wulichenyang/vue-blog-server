@@ -1,6 +1,6 @@
 let mongoose = require('mongoose');
 let Schema = mongoose.Schema;
-let BaseModel = require('./BaseModel')
+let BaseModel = require('./BaseModel');
 // 话题
 let categorySchema = new Schema({
   // // 创建人: 暂时由管理员创建

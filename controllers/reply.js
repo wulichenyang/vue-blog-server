@@ -1,13 +1,13 @@
-let replyModel = require('../models/reply')
-let To = require('../utils/to')
+let replyModel = require('../models/reply');
+let To = require('../utils/to');
 let {
   internalErrRes,
   successRes
-} = require('../utils/response')
-const xss = require('xss')
+} = require('../utils/response');
+const xss = require('xss');
 const {
   checkReply
-} = require('../utils/validate')
+} = require('../utils/validate');
 
 class ReplyController {
 

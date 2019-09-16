@@ -1,6 +1,6 @@
 let mongoose = require('mongoose');
 let Schema = mongoose.Schema;
-let BaseModel = require('./BaseModel')
+let BaseModel = require('./BaseModel');
 
 /**
  * 通知一个人的推送消息

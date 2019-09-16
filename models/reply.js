@@ -1,6 +1,6 @@
 let mongoose = require('mongoose');
 let Schema = mongoose.Schema;
-let BaseModel = require('./BaseModel')
+let BaseModel = require('./BaseModel');
 
 // 二级评论（回复评论/回复reply）
 let replySchema = new Schema({

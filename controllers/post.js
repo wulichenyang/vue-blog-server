@@ -1,13 +1,13 @@
-let postModel = require('../models/post')
-let To = require('../utils/to')
+let postModel = require('../models/post');
+let To = require('../utils/to');
 let {
   internalErrRes,
   successRes
-} = require('../utils/response')
-const xss = require('xss')
+} = require('../utils/response');
+const xss = require('xss');
 const {
   checkPost
-} = require('../utils/validate')
+} = require('../utils/validate');
 
 class PostController {
 

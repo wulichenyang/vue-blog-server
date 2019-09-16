@@ -1,6 +1,6 @@
 let mongoose = require('mongoose');
 let Schema = mongoose.Schema;
-let BaseModel = require('./BaseModel')
+let BaseModel = require('./BaseModel');
 
 // 文章
 let postSchema = new Schema({

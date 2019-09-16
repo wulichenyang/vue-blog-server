@@ -1,13 +1,13 @@
-let categoryModel = require('../models/category')
-let To = require('../utils/to')
+let categoryModel = require('../models/category');
+let To = require('../utils/to');
 let {
   internalErrRes,
   successRes
-} = require('../utils/response')
-const xss = require('xss')
+} = require('../utils/response');
+const xss = require('xss');
 const {
   checkCategory
-} = require('../utils/validate')
+} = require('../utils/validate');
 
 class CategoryController {
 

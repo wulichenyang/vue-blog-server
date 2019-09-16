@@ -39,6 +39,7 @@ app.use(log4accessLogger())
 // 抵御一些比较常见的安全web安全隐患
 app.use(helmet())
 // 使用 koa-session 缓存
+app.keys = ['newest secret key', 'older secret key'];
 app.use(session(koaSessionConfig, app));
 
 // error handler
@@ -91,7 +92,7 @@ app.use(rootRouter.routes(), rootRouter.allowedMethods())
 // error-handling
 app.on('error', (err, ctx) => {
   console.error('server error', err, ctx)
-  // 应用日志
+  // 应用日志 // TODO: fix TypeError: Cannot read property 'error' of undefined
   log4ApplicationLogger.error(err)
 });
 

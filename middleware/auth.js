@@ -21,7 +21,7 @@ exports.genToken = (userinfo, expireDay) => {
 
       // 24 小时 * expireDay 天 过期
       expiresIn: 60 * 60 * 24 * expireDay
-    })
+    });
   return token
 }
 
@@ -34,7 +34,7 @@ exports.genToken = (userinfo, expireDay) => {
  */
 const verifyToken = (ctx, callback) => {
   // 取 Header 里的 token
-  let token = ctx.header.authorization && ctx.header.authorization.split('Bearer ')[1]
+  let token = ctx.header.authorization && ctx.header.authorization.split('Bearer ')[1];
   // let token = req.get('Authorization') && req.get('Authorization').split('Bearer ')[1] // ||
   // req.body.token ||
   // req.query.token || 

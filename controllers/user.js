@@ -1,31 +1,31 @@
-let userModel = require('../models/user')
-let phoneModel = require('../models/phone')
-let emailModel = require('../models/email')
+let userModel = require('../models/user');
+let phoneModel = require('../models/phone');
+let emailModel = require('../models/email');
 const {
   userDetailSelect,
   userBriefSelect
-} = require('../config/select')
-let To = require('../utils/to')
+} = require('../config/select');
+let To = require('../utils/to');
 const {
   parsePwd,
   encryptPwd,
   genRSAKey
-} = require('../utils/rsa')
-const xss = require('xss')
+} = require('../utils/rsa');
+const xss = require('xss');
 const {
   checkPhone,
   checkEmail,
   checkNickname,
   checkPwd,
   checkUserUpdateObj,
-} = require('../utils/validate')
+} = require('../utils/validate');
 const {
   genToken
-} = require('../middleware/auth')
+} = require('../middleware/auth');
 const {
   internalErrRes,
   successRes
-} = require('../utils/response')
+} = require('../utils/response');
 
 class UserController {
 
@@ -93,7 +93,7 @@ class UserController {
       phone,
       nickname,
       password
-    } = ctx.request.body
+    } = ctx.request.body;
     let err, isOk;
 
     // 检查手机格式
@@ -131,7 +131,7 @@ class UserController {
 
 
     // 非对称加密，后端利用私钥解密，检测后再加密存储到DB
-    let parsedPwd = parsePwd(ctx, password)
+    let parsedPwd = parsePwd(ctx, password);
     // 检查密码格式 ? TODO:有必要吗？
     [err, isOk] = checkPwd(parsedPwd);
 
@@ -145,7 +145,7 @@ class UserController {
     }
 
     // 服务器二次加密密码 
-    let encryptedPwd = encryptPwd(parsedPwd)
+    let encryptedPwd = encryptPwd(parsedPwd);
 
     // 查找手机号是否已被注册
     let findPhone;
@@ -289,7 +289,7 @@ class UserController {
       email,
       nickname,
       password
-    } = ctx.request.body
+    } = ctx.request.body;
     let err, isOk;
 
     // 检查邮箱格式
@@ -326,7 +326,7 @@ class UserController {
     }
 
     // 非对称加密，后端利用私钥解密，检测后再加密存储到DB
-    let parsedPwd = parsePwd(ctx, password)
+    let parsedPwd = parsePwd(ctx, password);
     // 检查密码格式 ? TODO:有必要吗？
     [err, isOk] = checkPwd(parsedPwd);
 
@@ -340,7 +340,7 @@ class UserController {
     }
 
     // 服务器二次加密密码 
-    let encryptedPwd = encryptPwd(parsedPwd)
+    let encryptedPwd = encryptPwd(parsedPwd);
 
     // 查找邮箱号是否已被注册
     let findEmail;
@@ -554,7 +554,7 @@ class UserController {
     }
 
     // 用私钥解密密码
-    let parsedPwd = parsePwd(ctx, password)
+    let parsedPwd = parsePwd(ctx, password);
 
     // 检查密码格式？有必要？
     [err, isOk] = checkPwd(parsedPwd)
@@ -569,7 +569,7 @@ class UserController {
     }
 
     // 再次加密后对比数据库中的用户密码
-    let encryptedPwd = encryptPwd(parsedPwd)
+    let encryptedPwd = encryptPwd(parsedPwd);
 
     // 密码不正确，返回错误信息
     if (encryptedPwd !== findUser.password) {
@@ -587,8 +587,8 @@ class UserController {
       phone: findPhone.phone,
       email: null,
       role: findUser.role
-    }
-    let token = genToken(userinfo, 30)
+    };
+    let token = genToken(userinfo, 30);
 
     // 返回正确信息和 token 给用户，
     successRes({
@@ -684,7 +684,7 @@ class UserController {
     }
 
     // 用私钥解密密码
-    let parsedPwd = parsePwd(ctx, password)
+    let parsedPwd = parsePwd(ctx, password);
 
     // 检查密码格式？有必要？
     [err, isOk] = checkPwd(parsedPwd)
@@ -699,7 +699,7 @@ class UserController {
     }
 
     // 再次加密后对比数据库中的用户密码
-    let encryptedPwd = encryptPwd(parsedPwd)
+    let encryptedPwd = encryptPwd(parsedPwd);
 
     // 密码不正确，返回错误信息
     if (encryptedPwd !== findUser.password) {
@@ -717,8 +717,8 @@ class UserController {
       phone: null,
       email: findEmail.email,
       role: findUser.role
-    }
-    let token = genToken(userinfo, 30)
+    };
+    let token = genToken(userinfo, 30);
 
     // 返回正确信息和 token 给用户，
     successRes({
@@ -830,7 +830,7 @@ class UserController {
   static async getUserBrief(ctx, next) {
     let {
       id
-    } = ctx.params
+    } = ctx.params;
     await UserController.getUserById(ctx, next, id, userBriefSelect, false)
   }
 
@@ -844,7 +844,7 @@ class UserController {
   static async getUserDetail(ctx, next) {
     let {
       id
-    } = ctx.params
+    } = ctx.params;
     await UserController.getUserById(ctx, next, id, userDetailSelect, true)
   }
 
@@ -993,7 +993,7 @@ class UserController {
    */
   static async updateUserDetailById(ctx, next, userId, updateObj) {
     // 获取修改信息
-    let err, isOk
+    let err, isOk;
 
     // 检查修改信息格式
     [err, isOk] = checkUserUpdateObj(updateObj)
@@ -1051,7 +1051,7 @@ class UserController {
    * @return {Promise.<void>}
    */
   static async genRSAKey(ctx, next) {
-    let publicKey = genRSAKey(ctx)
+    let publicKey = genRSAKey(ctx);
     successRes({
       ctx,
       data: {

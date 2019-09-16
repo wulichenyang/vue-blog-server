@@ -1,13 +1,13 @@
-let commentModel = require('../models/comment')
-let To = require('../utils/to')
+let commentModel = require('../models/comment');
+let To = require('../utils/to');
 let {
   internalErrRes,
   successRes
-} = require('../utils/response')
-const xss = require('xss')
+} = require('../utils/response');
+const xss = require('xss');
 const {
   checkComment
-} = require('../utils/validate')
+} = require('../utils/validate');
 
 class CommentController {
 

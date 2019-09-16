@@ -18,12 +18,12 @@ exports.genRSAKey = (ctx) => {
   // 生成512位密钥
   let key = new NodeRSA({
     b: 512
-  })
+  });
 
   // 生成私钥
-  let privateKey = key.exportKey('pkcs8-private')
+  let privateKey = key.exportKey('pkcs8-private');
   // 生成公钥
-  let publicKey = key.exportKey('pkcs8-public')
+  let publicKey = key.exportKey('pkcs8-public');
 
   // 保存私钥
   ctx.session.privateKey = privateKey
@@ -42,10 +42,10 @@ exports.genRSAKey = (ctx) => {
  * @return {string} decryptedPwd - 解密后的密码
  */
 exports.parsePwd = (ctx, pwd) => {
-  let priKey = ctx.session.privateKey
-  let privateKey = new NodeRSA(priKey, 'pkcs8-private')
-  let decryptedPwd = privateKey.decrypt(pwd, 'utf8')
-  return decryptedPwd
+  let priKey = ctx.session.privateKey;
+  let privateKey = new NodeRSA(priKey, 'pkcs8-private');
+  let decryptedPwd = privateKey.decrypt(pwd, 'utf8');
+  return decryptedPwd;
 }
 
 
