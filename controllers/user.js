@@ -890,7 +890,7 @@ class UserController {
 
       // 查找phone信息
       let findPhone;
-      [err, findPhone] = await getUserPhone(ctx, userId)
+      [err, findPhone] = await UserController.getUserPhone(ctx, userId)
 
       // 查找错误，返回错误信息
       if (err) {
@@ -911,7 +911,7 @@ class UserController {
 
       // 查找email信息
       let findEmail;
-      [err, findEmail] = await getUserEmail(ctx, userId)
+      [err, findEmail] = await UserController.getUserEmail(ctx, userId)
 
       // 查找错误，返回错误信息
       if (err) {
