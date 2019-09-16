@@ -865,7 +865,7 @@ class UserController {
         _id: userId
       },
       select
-    }))
+    }));
 
     // 查找错误，返回错误信息
     if (err) {
@@ -890,7 +890,7 @@ class UserController {
 
       // 查找phone信息
       let findPhone;
-      [err, findPhone] = await UserController.getUserPhone(ctx, userId)
+      [err, findPhone] = await UserController.getUserPhone(ctx, userId);
 
       // 查找错误，返回错误信息
       if (err) {
