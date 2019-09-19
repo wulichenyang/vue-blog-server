@@ -58,7 +58,20 @@ module.exports = {
    * @param {object} category 文章分类对象
    * @return {[string, boolean]} [错误信息，验证通过与否]
    */
-  checkCategory: ({name, brief, description, sort}) => {
+  checkCategory: ({name, brief, avatar, sort}) => {
+    // if(err){
+    //   return ['err info', false]
+    // }
+    return ['', true]
+  },
+
+  /**
+   * 检查修改文章分类格式字段正确性
+   * 
+   * @param {object} category 文章分类对象
+   * @return {[string, boolean]} [错误信息，验证通过与否]
+   */
+  checkUpdateCategory: (key, value) => {
     // if(err){
     //   return ['err info', false]
     // }
