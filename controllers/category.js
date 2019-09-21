@@ -26,7 +26,7 @@ class CategoryController {
       brief,
       avatar,
       sort
-    } = ctx.body;
+    } = ctx.request.body;
 
     // 检查category格式
     let err, isOk;
@@ -75,7 +75,7 @@ class CategoryController {
 
     // 分类名未重复，进行插入操作
     let res;
-    [err, res] = To(categoryModel.save({
+    [err, res] = await To(categoryModel.save({
       data: {
         name,
         brief,
@@ -235,7 +235,7 @@ class CategoryController {
     const {
       key,
       value,
-    } = ctx.body
+    } = ctx.request.body
 
     // 检测属性值
     let err, isOk;

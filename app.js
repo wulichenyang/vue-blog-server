@@ -13,6 +13,8 @@ const bodyparser = require('koa-bodyparser')
 const logger = require('koa-logger')
 const index = require('./routes/index')
 const user = require('./routes/user')
+const category = require('./routes/category')
+const upload = require('./routes/upload')
 const Router = require('koa-router')
 // 启动 gzip 压缩
 const compress = require('koa-compress')
@@ -85,6 +87,8 @@ runDB()
 const rootRouter = new Router()
 rootRouter.use(ApiPrefix, index.routes(), index.allowedMethods())
 rootRouter.use(ApiPrefix, user.routes(), user.allowedMethods())
+rootRouter.use(ApiPrefix, category.routes(), category.allowedMethods())
+rootRouter.use(ApiPrefix, upload.routes(), upload.allowedMethods())
 
 // routes
 app.use(rootRouter.routes(), rootRouter.allowedMethods())
