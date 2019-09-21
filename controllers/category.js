@@ -181,7 +181,15 @@ class CategoryController {
   static async getCategoryList(ctx, next) {
     let err, findCategoryList;
     [err, findCategoryList] = await To(categoryModel.find({
-      query: {}
+      query: {},
+      select: {
+        __v: 0
+      },
+      options: {
+        sort: {
+          sort: -1
+        }
+      }
     }))
 
     if (err) {
