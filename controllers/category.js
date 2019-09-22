@@ -240,14 +240,24 @@ class CategoryController {
   static async updateCategory(ctx, next) {
     // 获取修改对象id和修改属性
     const categoryId = ctx.params.id
-    const {
-      key,
-      value,
-    } = ctx.request.body
+    console.log(ctx.params.id)
 
-    // 检测属性值
+    // 获取修改的category信息
+    const {
+      name,
+      brief,
+      avatar,
+      sort
+    } = ctx.request.body;
+
+    // 检查category格式
     let err, isOk;
-    [err, isOk] = checkUpdateCategory(key, value)
+    [err, isOk] = checkCategory({
+      name,
+      brief,
+      avatar,
+      sort,
+    })
 
     // 检测错误，返回错误信息
     if (!isOk) {
@@ -263,7 +273,12 @@ class CategoryController {
     [err, res] = await To(categoryModel.update({
       query: {
         _id: categoryId,
-        [key]: value
+      },
+      update: {
+        name,
+        brief,
+        avatar,
+        sort
       }
     }))
 
