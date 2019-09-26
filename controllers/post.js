@@ -1,11 +1,15 @@
 let postModel = require('../models/post');
 let categoryModel = require('../models/category')
+let userModel = require('../models/user')
 let To = require('../utils/to');
 let {
   internalErrRes,
   successRes
 } = require('../utils/response');
-const xss = require('xss');
+const {
+  stringXss,
+  htmlXss
+} = require('../utils/xss')
 const {
   checkPost
 } = require('../utils/validate');
@@ -49,10 +53,10 @@ class PostController {
 
     if (state === 'published') {
       // 发布文章
-      PostController.addPublishedPost(ctx, next)
+      await PostController.addPublishedPost(ctx, next)
     } else if (state === 'draft') {
       // 保存草稿
-      PostController.addDraftPost(ctx, next)
+      await PostController.addDraftPost(ctx, next)
     } else {
       internalErrRes({
         ctx,
@@ -61,7 +65,6 @@ class PostController {
       return
     }
   }
-
 
   /**
    * 添加发布文章
@@ -81,7 +84,7 @@ class PostController {
 
     // 检查category是否存在
     let err, findCategory;
-    [err, findCategory] = await To(categoryModel.find({
+    [err, findCategory] = await To(categoryModel.findOne({
       query: {
         _id: categoryId
       }
@@ -105,7 +108,33 @@ class PostController {
       return
     }
 
-    // 找到category，开启事务
+    // 检查user是否存在
+    let findUser;
+    [err, findUser] = await To(userModel.findOne({
+      query: {
+        _id: userId
+      }
+    }))
+
+    // 查找user错误
+    if (err) {
+      internalErrRes({
+        ctx,
+        err
+      })
+      return
+    }
+
+    // 没找到user
+    if (!findUser) {
+      internalErrRes({
+        ctx,
+        err: '没有该用户'
+      })
+      return
+    }
+
+    // 找到 category 和 user，开启 category 事务
     let txErr, isTxOk;
     [txErr, isTxOk] = await categoryModel.startTransaction()
 
@@ -119,14 +148,17 @@ class PostController {
       })
       return
     }
+
     // 更新category下文章数
-    let err, categoryRes;
+    let categoryRes;
+    console.log('postcount;', findCategory.postCount + 1)
+    let newCount = findCategory.postCount + 1;
     [err, categoryRes] = await To(categoryModel.update({
       query: {
         _id: categoryId
       },
       update: {
-        postCount: findCategory.postCount + 1
+        postCount: newCount
       }
     }))
 
@@ -138,7 +170,47 @@ class PostController {
       })
 
       // 事务回滚
-      await categoryModel.rollback();
+      categoryModel.rollback();
+      return
+    }
+
+    // 开启 user 事务
+    [txErr, isTxOk] = await userModel.startTransaction()
+
+    // 事务开启冲突
+    if (!isTxOk) {
+
+      // 返回错误信息
+      internalErrRes({
+        ctx,
+        err: txErr
+      })
+      return
+    }
+
+    // 更新user下文章数
+    let userRes;
+    console.log('finuser', findUser)
+    let userNewPostCount = findUser.postCount + 1;
+    [err, userRes] = await To(userModel.update({
+      query: {
+        _id: userId
+      },
+      update: {
+        postCount: userNewPostCount
+      }
+    }))
+
+    // 更新失败，回滚事务，返回错误信息
+    if (err) {
+      internalErrRes({
+        ctx,
+        err
+      })
+
+      // 事务回滚
+      userModel.rollback();
+      categoryModel.rollback();
       return
     }
 
@@ -148,9 +220,9 @@ class PostController {
       data: {
         author: userId,
         category: categoryId,
-        title,
-        content,
-        state,
+        title: stringXss(title),
+        content: htmlXss(content),
+        state: stringXss(state),
       }
     }))
 
@@ -163,17 +235,20 @@ class PostController {
         err
       })
 
-      // 文章分类修改事务回滚
-      await categoryModel.rollback()
+      // 事务回滚
+      categoryModel.rollback()
+      userModel.rollback()
       return
     }
 
     // 关联操作成功，提交事务
-    await userModel.endTransaction()
-    
+    categoryModel.endTransaction()
+    userModel.endTransaction()
+
     // 添加成功，返回成功信息
     successRes({
       ctx,
+      data: savedPost,
       message: '发布成功'
     })
     return

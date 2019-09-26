@@ -14,6 +14,7 @@ const logger = require('koa-logger')
 const index = require('./routes/index')
 const user = require('./routes/user')
 const category = require('./routes/category')
+const post = require('./routes/post')
 const upload = require('./routes/upload')
 const Router = require('koa-router')
 // 启动 gzip 压缩
@@ -89,6 +90,7 @@ rootRouter.use(ApiPrefix, index.routes(), index.allowedMethods())
 rootRouter.use(ApiPrefix, user.routes(), user.allowedMethods())
 rootRouter.use(ApiPrefix, category.routes(), category.allowedMethods())
 rootRouter.use(ApiPrefix, upload.routes(), upload.allowedMethods())
+rootRouter.use(ApiPrefix, post.routes(), post.allowedMethods())
 
 // routes
 app.use(rootRouter.routes(), rootRouter.allowedMethods())

@@ -4,7 +4,10 @@ let {
   internalErrRes,
   successRes
 } = require('../utils/response');
-const xss = require('xss');
+const {
+  stringXss,
+  htmlXss
+} = require('../utils/xss')
 const {
   checkComment
 } = require('../utils/validate');

@@ -4,7 +4,9 @@ let {
   internalErrRes,
   successRes
 } = require('../utils/response');
-const xss = require('xss');
+const {
+  stringXss,
+} = require('../utils/xss')
 const {
   checkCategory,
   checkUpdateCategory
@@ -51,7 +53,7 @@ class CategoryController {
     let findCategory;
     [err, findCategory] = await (To(categoryModel.findOne({
       query: {
-        name
+        name: stringXss(name)
       }
     })))
 
@@ -77,9 +79,9 @@ class CategoryController {
     let res;
     [err, res] = await To(categoryModel.save({
       data: {
-        name,
-        brief,
-        avatar,
+        name: stringXss(name),
+        brief: stringXss(brief),
+        avatar: stringXss(avatar),
         sort,
       }
     }))
@@ -141,7 +143,7 @@ class CategoryController {
     const categoryId = ctx.params.id
 
     let err, findCategory;
-    [err, findCategory] = await To(categoryModel.find({
+    [err, findCategory] = await To(categoryModel.findOne({
       query: {
         _id: categoryId
       }

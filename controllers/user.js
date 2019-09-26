@@ -11,7 +11,9 @@ const {
   encryptPwd,
   genRSAKey
 } = require('../utils/rsa');
-const xss = require('xss');
+const {
+  stringXss,
+} = require('../utils/xss')
 const {
   checkPhone,
   checkEmail,
@@ -109,13 +111,7 @@ class UserController {
     }
 
     // 昵称xss过滤
-    nickname = xss(nickname, {
-      whiteList: {},
-      stripIgnoreTag: true,
-      onTagAttr: function (tag, name, value, isWhiteAttr) {
-        return '';
-      }
-    });
+    nickname = stringXss(nickname);
 
     // 检查昵称格式
     [err, isOk] = checkNickname(nickname);
@@ -305,13 +301,7 @@ class UserController {
     }
 
     // 昵称xss过滤
-    nickname = xss(nickname, {
-      whiteList: {},
-      stripIgnoreTag: true,
-      onTagAttr: function (tag, name, value, isWhiteAttr) {
-        return '';
-      }
-    });
+    nickname = stringXss(nickname);
 
     // 检查昵称格式
     [err, isOk] = checkNickname(nickname);
