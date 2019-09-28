@@ -10,12 +10,12 @@ let replySchema = new Schema({
     ref: 'Comment'
   },
   // 回复作者id
-  fromId: {
+  from: {
     type: Schema.Types.ObjectId,
     ref: 'User'
   },
   // 回复对象用户id
-  toId: {
+  to: {
     type: Schema.Types.ObjectId,
     ref: 'User'
   },

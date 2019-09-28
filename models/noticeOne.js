@@ -21,12 +21,12 @@ const noticeOneSchema = new Schema({
     type: String
   },
   // 消息触发者
-  fromId: {
+  from: {
     type: Schema.Types.ObjectId,
     ref: 'User'
   },
   // 消息接受者
-  toId: {
+  to: {
     type: Schema.Types.ObjectId,
     ref: 'User'
   },
@@ -59,13 +59,13 @@ const noticeOneSchema = new Schema({
   }
 });
 
-// noticeOneSchema.index({ toId: 1 });
-// noticeOneSchema.index({ toId: 1, createAt: -1, deleted: 1 });
+// noticeOneSchema.index({ to: 1 });
+// noticeOneSchema.index({ to: 1, createAt: -1, deleted: 1 });
 
 noticeOneSchema.index({
   type: 1,
-  fromId: 1,
-  toId: 1,
+  from: 1,
+  to: 1,
   postId: 1,
   commentId: 1,
   replyId: 1

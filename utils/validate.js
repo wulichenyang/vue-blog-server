@@ -110,7 +110,7 @@ module.exports = {
    * @param {object} reply 回复对象
    * @return {[string, boolean]} [错误信息，验证通过与否]
    */
-  checkReply: ({commentId, fromId, toId, content, state}) => {
+  checkReply: ({commentId, from, to, content, state}) => {
     // if(err){
     //   return ['err info', false]
     // }

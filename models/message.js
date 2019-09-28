@@ -5,12 +5,12 @@ let BaseModel = require('./BaseModel');
 // 私信
 let messageSchema = new Schema({
   // 发件人
-  fromId: {
+  from: {
     type: Schema.Types.ObjectId,
     ref: 'User'
   },
   // 接收人
-  toId: {
+  to: {
     type: Schema.Types.ObjectId,
     ref: 'User'
   },

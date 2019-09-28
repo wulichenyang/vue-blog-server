@@ -11,12 +11,12 @@ let BaseModel = require('./BaseModel');
  */
 const noticeAllSchema = new Schema({
   // 发送人
-  fromId: {
+  from: {
     type: Schema.Types.ObjectId,
     ref: 'User'
   },
   // 接收人
-  toId: [{
+  to: [{
     type: Schema.Types.ObjectId,
     ref: 'User'
   }],
@@ -40,8 +40,8 @@ const noticeAllSchema = new Schema({
 
 // 添加索引
 noticeAllSchema.index({
-  fromId: 1,
-  toId: 1,
+  from: 1,
+  to: 1,
   targetId: 1,
   type: 1
 }, {
