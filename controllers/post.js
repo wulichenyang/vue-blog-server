@@ -7,6 +7,10 @@ let {
   successRes
 } = require('../utils/response');
 const {
+  postBriefSelect,
+  postDetailSelect
+} = require('../config/select')
+const {
   stringXss,
   htmlXss
 } = require('../utils/xss')
@@ -151,7 +155,6 @@ class PostController {
 
     // 更新category下文章数
     let categoryRes;
-    console.log('postcount;', findCategory.postCount + 1)
     let newCount = findCategory.postCount + 1;
     [err, categoryRes] = await To(categoryModel.update({
       query: {
@@ -190,7 +193,6 @@ class PostController {
 
     // 更新user下文章数
     let userRes;
-    console.log('finuser', findUser)
     let userNewPostCount = findUser.postCount + 1;
     [err, userRes] = await To(userModel.update({
       query: {
@@ -308,7 +310,90 @@ class PostController {
    * @return {Promise.<void>}
    */
   static async getPost(ctx, next) {
+    // 获取 postId
+    const {
+      id
+    } = ctx.params;
 
+    // 根据postId查找文章详细信息
+    let err, postRes;
+    [err, postRes] = await To(postModel.findOne({
+      query: {
+        _id: id
+      },
+      select: postDetailSelect,
+    }))
+
+    // 查找失败，返回错误信息
+    if (err) {
+      internalErrRes({
+        ctx,
+        err
+      })
+      return
+    }
+
+    let populateOptions = [{
+      path: 'author',
+      model: 'User',
+      select: {
+        '_id': 1,
+        'avatar': 1,
+        'nickname': 1,
+      }
+    },
+    {
+      path: 'category',
+      model: 'Category',
+      select: {
+        '_id': 1,
+        'name': 1
+      }
+    },
+      // {
+      //   //TODO:
+      //   path: 'comment',
+      //   model: 'Comment',
+      //   // match: {
+      //   // },
+      //   select: {
+      //     // '_id': 1,
+      //     // 'content_html': 1,
+      //     // 'create_at': 1,
+      //     // 'reply_count': 1,
+      //     // 'like_count': 1,
+      //     // 'user_id': 1,
+      //     // 'posts_id': 1
+      //   },
+      //   options: {
+      //     // limit: commentsLimit,
+      //     // sort: _commentsSort
+      //   }
+      // }
+    ];
+
+    // populatecategory和用户数据
+    let postDetail;
+    [err, postDetail] = await To(postModel.populate({
+      collections: postRes,
+      options: populateOptions
+    }))
+    
+    // 查找失败，返回错误信息
+    if (err) {
+      internalErrRes({
+        ctx,
+        err
+      })
+      return
+    }
+
+    successRes({
+      ctx,
+      data: postDetail,
+      message: '获取postDetail成功'
+    })
+    return
   }
 
   /**
@@ -330,7 +415,95 @@ class PostController {
    * @return {Promise.<void>}
    */
   static async getPostListByCategory(ctx, next) {
+    // 获取categoryID
+    const {
+      id
+    } = ctx.params;
 
+    // 根据categoryId过滤查找所有的文章列表
+    let err, postsRes;
+    [err, postsRes] = await To(postModel.find({
+      query: {
+        category: id
+      },
+      select: postBriefSelect,
+      options: {
+        sort: {
+          createdAt: -1
+        }
+      }
+    }))
+    // 查找失败，返回错误信息
+    if (err) {
+      internalErrRes({
+        ctx,
+        err
+      })
+      return
+    }
+
+    let populateOptions = [{
+        path: 'author',
+        model: 'User',
+        select: {
+          '_id': 1,
+          'avatar': 1,
+          'nickname': 1,
+        }
+      },
+      {
+        path: 'category',
+        model: 'Category',
+        select: {
+          '_id': 1,
+          'name': 1
+        }
+      },
+      // {
+      //   //TODO:
+      //   path: 'comment',
+      //   model: 'Comment',
+      //   // match: {
+      //   // },
+      //   select: {
+      //     // '_id': 1,
+      //     // 'content_html': 1,
+      //     // 'create_at': 1,
+      //     // 'reply_count': 1,
+      //     // 'like_count': 1,
+      //     // 'user_id': 1,
+      //     // 'posts_id': 1
+      //   },
+      //   options: {
+      //     // limit: commentsLimit,
+      //     // sort: _commentsSort
+      //   }
+      // }
+    ];
+
+
+    // populatecategory和用户数据
+    let postBriefList;
+    [err, postBriefList] = await To(postModel.populate({
+      collections: postsRes,
+      options: populateOptions
+    }))
+    // 查找失败，返回错误信息
+    if (err) {
+      internalErrRes({
+        ctx,
+        err
+      })
+      return
+    }
+
+    // 查找成功返回数据
+    successRes({
+      ctx,
+      data: postBriefList,
+      message: '获取postBriefList成功'
+    })
+    return
   }
 
   /**

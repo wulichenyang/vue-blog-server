@@ -28,3 +28,25 @@ exports.userBriefSelect = {
   followPostCount: 1,
   collectPostCount: 1,
 }
+
+const postBriefSelect = {
+  _id: 1,
+  author: 1,
+  category: 1,
+  title: 1,
+  viewCount: 1,
+  likeCount: 1,
+  commentCount: 1,
+  createdAt: 1,
+  updatedAt: 1
+}
+
+exports.postBriefSelect = postBriefSelect
+
+exports.postDetailSelect = {
+  ...postBriefSelect,
+  content: 1,
+  followCount: 1,
+  comment: 1,
+  state: 1,
+}
