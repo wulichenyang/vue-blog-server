@@ -1,4 +1,12 @@
 const router = require('koa-router')()
+const {
+  ApiPrefix,
+} = require('../config/index')
+const user = require('./user')
+const category = require('./category')
+const post = require('./post')
+const upload = require('./upload')
+const comment = require('./comment')
 
 router.get('/', async (ctx, next) => {
   await ctx.render('index', {
@@ -16,4 +24,14 @@ router.get('/json', async (ctx, next) => {
   }
 })
 
-module.exports = router
+// 汇总路由
+const addRoutes = (rootRouter) => {
+  rootRouter.use(ApiPrefix, router.routes(), router.allowedMethods())
+  rootRouter.use(ApiPrefix, user.routes(), user.allowedMethods())
+  rootRouter.use(ApiPrefix, category.routes(), category.allowedMethods())
+  rootRouter.use(ApiPrefix, upload.routes(), upload.allowedMethods())
+  rootRouter.use(ApiPrefix, post.routes(), post.allowedMethods())
+  rootRouter.use(ApiPrefix, comment.routes(), comment.allowedMethods())
+}
+
+exports.addRoutes = addRoutes

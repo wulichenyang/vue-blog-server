@@ -1,6 +1,5 @@
 const Koa = require('koa')
 const {
-  ApiPrefix,
   koaSessionConfig,
 } = require('./config/index')
 const session = require('koa-session');
@@ -11,16 +10,17 @@ const json = require('koa-json')
 const onerror = require('koa-onerror')
 const bodyparser = require('koa-bodyparser')
 const logger = require('koa-logger')
-const index = require('./routes/index')
-const user = require('./routes/user')
-const category = require('./routes/category')
-const post = require('./routes/post')
-const upload = require('./routes/upload')
 const Router = require('koa-router')
+const {
+  addRoutes
+} = require('./routes/index')
 // 启动 gzip 压缩
 const compress = require('koa-compress')
 // 日志记录
-const { log4ApplicationLogger, log4accessLogger }  = require('./middleware/log4js')
+const {
+  log4ApplicationLogger,
+  log4accessLogger
+} = require('./middleware/log4js')
 // 客户请求限制
 const RateLimit = require('koa2-ratelimit').RateLimit;
 // 抵御一些比较常见的安全web安全隐患
@@ -38,7 +38,7 @@ const limiter = RateLimit.middleware({
 });
 
 // 启动访问日志
-app.use(log4accessLogger()) 
+app.use(log4accessLogger())
 // 抵御一些比较常见的安全web安全隐患
 app.use(helmet())
 // 使用 koa-session 缓存
@@ -58,7 +58,7 @@ app.use(logger())
 // 启动 gzip 压缩
 app.use(
   compress({
-    filter: function(content_type) { // 只有在请求的content-type中有gzip类型，才会考虑压缩，因为zlib是压缩成gzip类型的
+    filter: function (content_type) { // 只有在请求的content-type中有gzip类型，才会考虑压缩，因为zlib是压缩成gzip类型的
       return /text/i.test(content_type);
     },
     threshold: 1024, // 阀值，当数据超过1kb的时候，可以压缩
@@ -86,12 +86,7 @@ runDB()
 
 // 根路由
 const rootRouter = new Router()
-rootRouter.use(ApiPrefix, index.routes(), index.allowedMethods())
-rootRouter.use(ApiPrefix, user.routes(), user.allowedMethods())
-rootRouter.use(ApiPrefix, category.routes(), category.allowedMethods())
-rootRouter.use(ApiPrefix, upload.routes(), upload.allowedMethods())
-rootRouter.use(ApiPrefix, post.routes(), post.allowedMethods())
-
+addRoutes(rootRouter)
 // routes
 app.use(rootRouter.routes(), rootRouter.allowedMethods())
 
