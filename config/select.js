@@ -50,3 +50,39 @@ exports.postDetailSelect = {
   comment: 1,
   state: 1,
 }
+
+exports.userBriefSelect = {
+  '_id': 1,
+  'avatar': 1,
+  'nickname': 1,
+}
+
+exports.categoryBriefSelect = {
+  '_id': 1,
+  'name': 1
+}
+
+exports.commentDetailSelect = {
+  _id: 1,
+  postId: 1,
+  author: 1,
+  content: 1,
+  likeCount: 1,
+  reply: 1,
+  state: 1,
+  createdAt: 1,
+  updatedAt: 1
+}
+
+exports.replyDetailSelect = {
+  _id: 1,
+  commentId: 1,
+  from: 1,
+  to: 1,
+  content: 1,
+  likeCount: 1,
+  reply: 1,
+  state: 1,
+  createdAt: 1,
+  updatedAt: 1
+}

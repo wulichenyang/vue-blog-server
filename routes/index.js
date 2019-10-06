@@ -7,6 +7,7 @@ const category = require('./category')
 const post = require('./post')
 const upload = require('./upload')
 const comment = require('./comment')
+const reply = require('./reply')
 
 router.get('/', async (ctx, next) => {
   await ctx.render('index', {
@@ -27,11 +28,18 @@ router.get('/json', async (ctx, next) => {
 // 汇总路由
 const addRoutes = (rootRouter) => {
   rootRouter.use(ApiPrefix, router.routes(), router.allowedMethods())
+
   rootRouter.use(ApiPrefix, user.routes(), user.allowedMethods())
+
   rootRouter.use(ApiPrefix, category.routes(), category.allowedMethods())
+
   rootRouter.use(ApiPrefix, upload.routes(), upload.allowedMethods())
+
   rootRouter.use(ApiPrefix, post.routes(), post.allowedMethods())
+
   rootRouter.use(ApiPrefix, comment.routes(), comment.allowedMethods())
+
+  rootRouter.use(ApiPrefix, reply.routes(), reply.allowedMethods())
 }
 
 exports.addRoutes = addRoutes

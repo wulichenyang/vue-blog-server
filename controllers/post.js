@@ -8,7 +8,11 @@ let {
 } = require('../utils/response');
 const {
   postBriefSelect,
-  postDetailSelect
+  postDetailSelect,
+  userBriefSelect,
+  categoryBriefSelect,
+  commentDetailSelect,
+  replyDetailSelect,
 } = require('../config/select')
 const {
   stringXss,
@@ -303,7 +307,7 @@ class PostController {
   }
 
   /**
-   * 查看文章详细信息（populate评论？no，单独在getComment时获取comments和populate(replies)）
+   * 查看文章详细信息（populate评论 populate回复）
    * 
    * @param ctx
    * @param next
@@ -334,51 +338,65 @@ class PostController {
     }
 
     let populateOptions = [{
-      path: 'author',
-      model: 'User',
-      select: {
-        '_id': 1,
-        'avatar': 1,
-        'nickname': 1,
+        path: 'author',
+        model: 'User',
+        select: userBriefSelect,
+      },
+      {
+        path: 'category',
+        model: 'Category',
+        select: categoryBriefSelect,
+      },
+      // 评论
+      {
+        path: 'comment',
+        model: 'Comment',
+        // match: {
+        // },
+        select: commentDetailSelect,
+        options: {
+          // limit: commentsLimit,
+          sort: {
+            createdAt: -1
+          }
+        },
+        // 回复
+        // Deep populate
+        populate: [{
+            path: 'author',
+            model: 'User',
+            select: userBriefSelect,
+          },
+          {
+            path: 'reply',
+            model: 'Reply',
+            select: replyDetailSelect,
+            options: {
+              // limit: repliesLimit,
+              createdAt: -1
+            },
+            // Deep populate
+            populate: [{
+              path: 'from',
+              model: 'User',
+              select: userBriefSelect,
+            }, {
+              path: 'to',
+              model: 'User',
+              select: userBriefSelect,
+            }],
+          }
+        ]
       }
-    },
-    {
-      path: 'category',
-      model: 'Category',
-      select: {
-        '_id': 1,
-        'name': 1
-      }
-    },
-      // {
-      //   //TODO:
-      //   path: 'comment',
-      //   model: 'Comment',
-      //   // match: {
-      //   // },
-      //   select: {
-      //     // '_id': 1,
-      //     // 'content_html': 1,
-      //     // 'create_at': 1,
-      //     // 'reply_count': 1,
-      //     // 'like_count': 1,
-      //     // 'user_id': 1,
-      //     // 'posts_id': 1
-      //   },
-      //   options: {
-      //     // limit: commentsLimit,
-      //     // sort: _commentsSort
-      //   }
-      // }
     ];
 
-    // populatecategory和用户数据
+    // populate category和用户数据
     let postDetail;
     [err, postDetail] = await To(postModel.populate({
       collections: postRes,
       options: populateOptions
     }))
-    
+
     // 查找失败，返回错误信息
     if (err) {
       internalErrRes({
