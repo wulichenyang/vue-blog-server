@@ -12,7 +12,10 @@ const {
 const {
   checkComment
 } = require('../utils/validate');
-
+const {
+  userBriefSelect,
+  replyDetailSelect,
+} = require('../config/select')
 class CommentController {
 
   /**
@@ -151,10 +154,56 @@ class CommentController {
     // 关联操作成功，提交事务
     commentModel.endTransaction()
 
+    // populate 评论的其他信息
+
+    let populateOptions = [{
+        path: 'author',
+        model: 'User',
+        select: userBriefSelect,
+      },
+      // 回复
+      {
+        path: 'reply',
+        model: 'Reply',
+        select: replyDetailSelect,
+        options: {
+          // limit: repliesLimit,
+          createdAt: -1
+        },
+        // Deep populate
+        populate: [{
+          path: 'from',
+          model: 'User',
+          select: userBriefSelect,
+        }, {
+          path: 'to',
+          model: 'User',
+          select: userBriefSelect,
+        }],
+      }
+    ];
+
+    
+    // populate comment里author和reply信息
+    let commentDetail;
+    [err, commentDetail] = await To(commentModel.populate({
+      collections: newComment,
+      options: populateOptions
+    }))
+
+    // 查找失败，返回错误信息
+    if (err) {
+      internalErrRes({
+        ctx,
+        err
+      })
+      return
+    }
+
     // 添加成功，返回成功信息
     successRes({
       ctx,
-      data: newComment,
+      data: commentDetail,
       message: '评论成功'
     })
     return

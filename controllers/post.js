@@ -373,7 +373,7 @@ class PostController {
             select: replyDetailSelect,
             options: {
               // limit: repliesLimit,
-              createdAt: -1
+              createdAt: 1
             },
             // Deep populate
             populate: [{
