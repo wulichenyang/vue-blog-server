@@ -33,4 +33,7 @@ router.get('/posts?type=collect', userAuth, PostController.getSelfCollectPostLis
 // 更新文章（需检验是否是属于本人的文章）
 router.put('/posts/:id', userAuth, PostController.updatePost)
 
+// 文章阅读数 + 1
+// router.put('/posts/:id/addViewCount', PostController.addViewCount)
+
 module.exports = router

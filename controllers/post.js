@@ -319,8 +319,18 @@ class PostController {
       id
     } = ctx.params;
 
+    let err, isOk;
+    [err, isOk] = await PostController.addViewCount(ctx, next, id)
+    if (!isOk) {
+      internalErrRes({
+        ctx,
+        err
+      })
+      return
+    }
+    
     // 根据postId查找文章详细信息
-    let err, postRes;
+    let postRes;
     [err, postRes] = await To(postModel.findOne({
       query: {
         _id: id
@@ -566,6 +576,75 @@ class PostController {
    */
   static async updatePost(ctx, next) {
 
+  }
+
+  /**
+   * 增加文章浏览数
+   * 
+   * @param ctx
+   * @param next
+   * @param {string} postId 浏览的文章id
+   * @return {Promise.<[string, boolean]>} [err, isOk]
+   */
+  static async addViewCount(ctx, next, postId) {
+    // 初始化postViewMap访问记录
+    if (!ctx.session.postViewMap) {
+      ctx.session.postViewMap = {}
+    }
+
+    // 检查session的postViewMap里postId对应的是文章访问记录否存在
+    let lastViewTime = ctx.session.postViewMap[postId]
+    if (lastViewTime) {
+
+      // 存在则已经访问过该文章，判断时间是否过期
+      let timeNow = new Date().getTime()
+
+      // 大于一天算过期
+      if ((timeNow - lastViewTime) > ( 24 * 60 * 60 * 1000)) {
+
+        // 访问记录过期，则可以继续增加访问数，并刷新时间，
+        ctx.session.postViewMap[postId] = timeNow
+      } else {
+        // 访问记录未过期，不作处理
+        return ['', true]
+      }
+    } else {
+      // 不存在该文章的访问记录，是第一次访问，记录访问时间
+      ctx.session.postViewMap[postId] = new Date().getTime()
+    }
+
+    // 根据postId查找文章
+    let err, findPost;
+    [err, findPost] = await To(postModel.findOne({
+      query: {
+        _id: postId
+      },
+    }))
+
+    // 查找失败，返回错误信息
+    if (err) {
+      return [err, false]
+    }
+
+    // 查找成功，修改文章viewCount+1
+    let postRes;
+    let newCount = findPost.viewCount + 1;
+    [err, postRes] = await To(postModel.update({
+      query: {
+        _id: postId
+      },
+      update: {
+        viewCount: newCount
+      }
+    }))
+
+    // 更新失败，返回错误信息
+    if (err) {
+      return [err, false]
+    }
+
+    // 更新成功
+    return ['', true]
   }
 
 }
