@@ -76,7 +76,7 @@ class ReplyController {
         commentId,
         from,
         to,
-        content: stringXss(content),
+        content: htmlXss(content),
         state
       }
     }))

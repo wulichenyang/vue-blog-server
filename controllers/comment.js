@@ -73,7 +73,7 @@ class CommentController {
       data: {
         postId,
         author,
-        content: stringXss(content),
+        content: htmlXss(content),
         state
       }
     }))

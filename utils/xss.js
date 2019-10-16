@@ -31,6 +31,7 @@ const htmlXss = (htmlContent) => {
       img: ['src', 'alt'],
       p: [],
       div: [],
+      span:[],
       br: [],
       blockquote: [],
       li: [],
