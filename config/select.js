@@ -1,5 +1,6 @@
 // 用户详细信息，另加phone和email
 exports.userDetailSelect = {
+  _id: 1,
   role: 1,
   nickname: 1,
   realname: 1,

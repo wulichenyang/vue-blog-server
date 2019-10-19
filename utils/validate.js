@@ -118,6 +118,19 @@ module.exports = {
   },
 
   /**
+   * 检查点赞格式正确性
+   * 
+   * @param {object} like 回复对象
+   * @return {[string, boolean]} [错误信息，验证通过与否]
+   */
+  checkLike: ({targetId, userId, type}) => {
+    // if(err){
+    //   return ['err info', false]
+    // }
+    return ['', true]
+  },
+
+  /**
    * 检查更新用户对象格式
    * 
    * @param {object} reply 回复对象

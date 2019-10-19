@@ -13,12 +13,14 @@ router.post('/categories/:id/posts', userAuth, PostController.addPost)
 router.delete('/posts/:id', userAuth, PostController.deletePost)
 
 // 获取文章详细信息（只返回文章信息，不返回评论信息）
+// /posts/:id?userId=
 router.get('/posts/:id', PostController.getPost)
 
 // 获取所有文章列表（文章汇总）
 router.get('/posts', PostController.getPostList)
 
 // 获取某分类下的文章列表
+// /categories/:id/posts?userId=
 router.get('/categories/:id/posts', PostController.getPostListByCategory)
 
 // 获取某用户的发表文章列表

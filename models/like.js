@@ -28,7 +28,7 @@ let likeSchema = new Schema({
 });
 
 // 添加索引
-LikeSchema.index({
+likeSchema.index({
   userId: 1,
   type: 1,
   targetId: 1

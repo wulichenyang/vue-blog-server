@@ -2,6 +2,7 @@ let postModel = require('../models/post');
 let categoryModel = require('../models/category')
 let userModel = require('../models/user')
 let To = require('../utils/to');
+let likeModel = require('../models/like');
 let {
   internalErrRes,
   successRes
@@ -319,6 +320,11 @@ class PostController {
       id
     } = ctx.params;
 
+    // 获取用户（登录会返回ifLike）
+    const {
+      userId
+    } = ctx.request.query;
+
     let err, isOk;
     [err, isOk] = await PostController.addViewCount(ctx, next, id)
     if (!isOk) {
@@ -328,7 +334,7 @@ class PostController {
       })
       return
     }
-    
+
     // 根据postId查找文章详细信息
     let postRes;
     [err, postRes] = await To(postModel.findOne({
@@ -416,6 +422,128 @@ class PostController {
       return
     }
 
+    console.log(userId)
+    // 如果登录，则对每条post，每条comment，每条reply查找是否点赞
+    if (userId) {
+      // post点赞
+      let postId = postDetail._id;
+      let findPostLike;
+      [err, findPostLike] = await To(likeModel.findOne({
+        query: {
+          userId,
+          type: 'post',
+          targetId: postId,
+        }
+      }))
+
+      // 查找失败，返回错误信息
+      if (err) {
+        internalErrRes({
+          ctx,
+          err
+        })
+        return
+      }
+
+      postDetail = {
+        ...postDetail,
+        ifLike: findPostLike ? true : false
+      }
+
+      // comments 点赞
+      let commentIds = postDetail.comment.map(comment => comment._id);
+      let findCommentLikeArr;
+
+      [err, findCommentLikeArr] = await To(likeModel.find({
+        query: {
+          userId,
+          type: 'comment',
+          targetId: {
+            "$in": commentIds
+          },
+        }
+      }))
+
+      // 查找失败，返回错误信息
+      if (err) {
+        internalErrRes({
+          ctx,
+          err
+        })
+        return
+      }
+
+      let likeCommentMap = {};
+
+      findCommentLikeArr.forEach(like => {
+        likeCommentMap[like.targetId] = true
+      })
+
+      postDetail = {
+        ...postDetail,
+        comment: postDetail.comment.map(comment => {
+          return {
+            ...comment,
+            ifLike: likeCommentMap[comment._id] ? true : false
+          }
+        })
+      }
+
+      // reply 点赞
+      let replyIds = []
+      postDetail.comment.forEach(comment => {
+        replyIds = [
+          ...replyIds,
+          ...comment.reply.map(reply => {
+            return reply._id
+          })
+        ]
+      })
+
+      let findReplyLikeArr;
+
+      [err, findReplyLikeArr] = await To(likeModel.find({
+        query: {
+          userId,
+          type: 'reply',
+          targetId: {
+            "$in": replyIds
+          },
+        }
+      }))
+
+      // 查找失败，返回错误信息
+      if (err) {
+        internalErrRes({
+          ctx,
+          err
+        })
+        return
+      }
+
+      let likeReplyMap = {};
+
+      findReplyLikeArr.forEach(like => {
+        likeReplyMap[like.targetId] = true
+      })
+
+      postDetail = {
+        ...postDetail,
+        comment: postDetail.comment.map(comment => {
+          return {
+            ...comment,
+            reply: comment.reply.map(reply => {
+              return {
+                ...reply,
+                ifLike: likeReplyMap[reply._id] ? true : false
+              }
+            })
+          }
+        })
+      }
+
+    }
+
     successRes({
       ctx,
       data: postDetail,
@@ -447,6 +575,11 @@ class PostController {
     const {
       id
     } = ctx.params;
+
+    // 获取用户（登录会返回ifLike）
+    const {
+      userId
+    } = ctx.request.query;
 
     // 根据categoryId过滤查找所有的文章列表
     let err, postsRes;
@@ -509,7 +642,6 @@ class PostController {
       // }
     ];
 
-
     // populatecategory和用户数据
     let postBriefList;
     [err, postBriefList] = await To(postModel.populate({
@@ -523,6 +655,44 @@ class PostController {
         err
       })
       return
+    }
+
+    console.log(userId)
+    // 如果登录，则对每条post，查找是否点赞
+    if (userId) {
+      let postIds = postBriefList.map(post => post._id);
+      let findLikeArr;
+      [err, findLikeArr] = await To(likeModel.find({
+        query: {
+          userId,
+          type: 'post',
+          targetId: {
+            "$in": postIds
+          },
+        }
+      }))
+
+      // 查找失败，返回错误信息
+      if (err) {
+        internalErrRes({
+          ctx,
+          err
+        })
+        return
+      }
+
+      let likeMap = {};
+
+      findLikeArr.forEach(like => {
+        likeMap[like.targetId] = true
+      })
+
+      postBriefList = postBriefList.map(post => {
+        return {
+          ...post,
+          ifLike: likeMap[post._id] ? true : false
+        }
+      })
     }
 
     // 查找成功返回数据
@@ -600,7 +770,7 @@ class PostController {
       let timeNow = new Date().getTime()
 
       // 大于一天算过期
-      if ((timeNow - lastViewTime) > ( 24 * 60 * 60 * 1000)) {
+      if ((timeNow - lastViewTime) > (24 * 60 * 60 * 1000)) {
 
         // 访问记录过期，则可以继续增加访问数，并刷新时间，
         ctx.session.postViewMap[postId] = timeNow
