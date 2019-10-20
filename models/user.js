@@ -16,11 +16,13 @@ let userSchema = new Schema({
 
   // 密码
   password: String,
+
   // 用户的昵称（id） 唯一 初始值随机 辨别用户
   nickname: {
     type: String,
     unique: true
   },
+
   // 真实姓名 仅作为资料
   realname: {
     type: String,
@@ -31,38 +33,51 @@ let userSchema = new Schema({
     enum: ['admin', 'user'],
     default: 'user'
   },
+
   // 性别 0女 \ 1男 \ 2保密
   gender: {
     type: Number,
     enum: [0, 1, 2],
     default: 2
   },
+
   // 生日
   birth: {
     type: Date,
     default: new Date('1990/1/1')
   },
+
   // 头像
   avatar: {
     type: String,
     default: ''
   },
+  
   // 个性简介，70个字符限制
   brief: {
     type: String,
     default: ''
   },
+
   // 发帖数
   postCount: {
     type: Number,
     default: 0
   },
+
+  // 评论数
+  commentCount: {
+    type: Number,
+    default: 0
+  },
+
   // 粉丝数
   fansCount: {
     type: Number,
     default: 0
   },
-  // 获赞数量
+  
+  // 获赞数量 TODO：被赞时+1
   likeCount: {
     type: Number,
     default: 0

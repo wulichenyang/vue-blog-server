@@ -241,7 +241,7 @@ class LikeController {
    * 
    * @param ctx
    * @param next
-   * @param like 一条点赞
+   * @param like 一条点赞 TODO: 点赞时对象用户+1
    * @return {Promise.<void>}
    */
   static async deleteLike(ctx, next, like) {

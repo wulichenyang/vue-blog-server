@@ -27,7 +27,7 @@ router.get('/signout', userAuth, UserController.signOut)
 router.get('/admin/users', adminAuth, UserController.getUserList)
 
 // 获取某用户简略信息
-router.get('/users/:id', UserController.getUserBrief)
+router.get('/users/:id', UserController.getOtherUserDetail)
 
 // 获取某用户详细信息
 router.get('/admin/users/detail/:id', adminAuth, UserController.getUserDetail)

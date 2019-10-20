@@ -3,7 +3,7 @@ let phoneModel = require('../models/phone');
 let emailModel = require('../models/email');
 const {
   userDetailSelect,
-  userBriefSelect
+  otherUserDetailSelect
 } = require('../config/select');
 let To = require('../utils/to');
 const {
@@ -811,17 +811,17 @@ class UserController {
   }
 
   /**
-   * 获取某用户简略信息
+   * 获取某用户详细信息
    * 
    * @param ctx
    * @param next
    * @return {Promise.<void>}
    */
-  static async getUserBrief(ctx, next) {
+  static async getOtherUserDetail(ctx, next) {
     let {
       id
     } = ctx.params;
-    await UserController.getUserById(ctx, next, id, userBriefSelect, false)
+    await UserController.getUserById(ctx, next, id, otherUserDetailSelect, false)
   }
 
   /**

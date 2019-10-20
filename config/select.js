@@ -9,6 +9,7 @@ exports.userDetailSelect = {
   avatar: 1,
   brief: 1,
   postCount: 1,
+  commentCount: 1,
   fansCount: 1,
   likeCount: 1,
   followPeopleCount: 1,
@@ -17,16 +18,25 @@ exports.userDetailSelect = {
   collectPostCount: 1,
 }
 
-exports.userBriefSelect = {
+exports.otherUserDetailSelect = {
+  _id: 1,
   nickname: 1,
   gender: 1,
   avatar: 1,
   brief: 1,
+  
+  // 数量
   postCount: 1,
+  commentCount: 1,
   fansCount: 1,
+  likeCount: 1,
+
+  // 关注
   followPeopleCount: 1,
   followCategoryCount: 1,
   followPostCount: 1,
+
+  // 收藏
   collectPostCount: 1,
 }
 
