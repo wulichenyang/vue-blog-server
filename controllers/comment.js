@@ -18,6 +18,7 @@ const {
   userBriefSelect,
   replyDetailSelect,
   commentDetailSelect,
+  userCommentSelect
 } = require('../config/select')
 class CommentController {
 
@@ -346,13 +347,15 @@ class CommentController {
       query: {
         author: id
       },
-      select: commentDetailSelect,
+      select: userCommentSelect,
       options: {
         sort: {
           createdAt: -1
         }
       }
     }))
+
+    console.log(commentListRes)
 
     // 查找失败，返回错误信息
     if (err) {
@@ -377,6 +380,27 @@ class CommentController {
             "$in": commentIds
           },
         }
+      }))
+
+      // 查找失败，返回错误信息
+      if (err) {
+        internalErrRes({
+          ctx,
+          err
+        })
+        return
+      }
+
+      let populateOptions = {
+        path: 'author',
+        model: 'User',
+        select: userBriefSelect,
+      };
+
+      // populate 用户数据
+      [err, commentListRes] = await To(commentModel.populate({
+        collections: commentListRes,
+        options: populateOptions
       }))
 
       // 查找失败，返回错误信息

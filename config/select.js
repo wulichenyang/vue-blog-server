@@ -24,7 +24,7 @@ exports.otherUserDetailSelect = {
   gender: 1,
   avatar: 1,
   brief: 1,
-  
+
   // 数量
   postCount: 1,
   commentCount: 1,
@@ -73,16 +73,22 @@ exports.categoryBriefSelect = {
   'name': 1
 }
 
-exports.commentDetailSelect = {
+const userCommentSelect = {
   _id: 1,
   postId: 1,
   author: 1,
   content: 1,
   likeCount: 1,
-  reply: 1,
   state: 1,
   createdAt: 1,
-  updatedAt: 1
+  updatedAt: 1,
+}
+
+exports.userCommentSelect = userCommentSelect;
+
+exports.commentDetailSelect = {
+  ...userCommentSelect,
+  reply: 1,
 }
 
 exports.replyDetailSelect = {
