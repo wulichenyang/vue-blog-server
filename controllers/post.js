@@ -16,6 +16,9 @@ const {
   replyDetailSelect,
 } = require('../config/select')
 const {
+  postBriefPopulateOptions
+} = require('../config/populateOption')
+const {
   stringXss,
   htmlXss
 } = require('../utils/xss')
@@ -576,7 +579,7 @@ class PostController {
       id
     } = ctx.params;
 
-    // 获取用户（登录会返回ifLike）
+    // 获取登录用户（登录会返回ifLike）
     const {
       userId
     } = ctx.request.query;
@@ -594,6 +597,7 @@ class PostController {
         }
       }
     }))
+
     // 查找失败，返回错误信息
     if (err) {
       internalErrRes({
@@ -603,23 +607,7 @@ class PostController {
       return
     }
 
-    let populateOptions = [{
-        path: 'author',
-        model: 'User',
-        select: {
-          '_id': 1,
-          'avatar': 1,
-          'nickname': 1,
-        }
-      },
-      {
-        path: 'category',
-        model: 'Category',
-        select: {
-          '_id': 1,
-          'name': 1
-        }
-      },
+    // let populateOptions = postBriefPopulateOptions;
       // {
       //   //TODO:
       //   path: 'comment',
@@ -640,13 +628,13 @@ class PostController {
       //     // sort: _commentsSort
       //   }
       // }
-    ];
+    // ];
 
     // populatecategory和用户数据
     let postBriefList;
     [err, postBriefList] = await To(postModel.populate({
       collections: postsRes,
-      options: populateOptions
+      options: postBriefPopulateOptions
     }))
     // 查找失败，返回错误信息
     if (err) {
@@ -657,7 +645,6 @@ class PostController {
       return
     }
 
-    console.log(userId)
     // 如果登录，则对每条post，查找是否点赞
     if (userId) {
       let postIds = postBriefList.map(post => post._id);
@@ -712,7 +699,100 @@ class PostController {
    * @return {Promise.<void>}
    */
   static async getPostListByUser(ctx, next) {
+    // 用户id
+    const {
+      id
+    } = ctx.params;
 
+    // 获取用户（登录会返回ifLike）
+    const {
+      userId
+    } = ctx.request.query;
+
+    // 查找该用户发布的文章
+    let userPostList, err;
+    [err, userPostList] = await To(postModel.find({
+      query: {
+        author: id
+      },
+      select: postBriefSelect,
+      options: {
+        sort: {
+          createdAt: -1
+        }
+      }
+    }))
+
+    // 查找Posts错误
+    if (err) {
+      internalErrRes({
+        ctx,
+        err
+      })
+      return
+    }
+    
+    // populate category和用户数据
+    let postBriefList;
+    [err, postBriefList] = await To(postModel.populate({
+      collections: userPostList,
+      options: postBriefPopulateOptions
+    }))
+
+    // 查找失败，返回错误信息
+    if (err) {
+      internalErrRes({
+        ctx,
+        err
+      })
+      return
+    }
+
+    // 如果登录，则对每条post，查找是否点赞
+    if (userId) {
+      console.log(userId)
+      let postIds = postBriefList.map(post => post._id);
+      let findLikeArr;
+      [err, findLikeArr] = await To(likeModel.find({
+        query: {
+          userId,
+          type: 'post',
+          targetId: {
+            "$in": postIds
+          },
+        }
+      }))
+
+      // 查找失败，返回错误信息
+      if (err) {
+        internalErrRes({
+          ctx,
+          err
+        })
+        return
+      }
+
+      let likeMap = {};
+
+      findLikeArr.forEach(like => {
+        likeMap[like.targetId] = true
+      })
+
+      postBriefList = postBriefList.map(post => {
+        return {
+          ...post,
+          ifLike: likeMap[post._id] ? true : false
+        }
+      })
+    }
+
+    // 查找成功返回数据
+    successRes({
+      ctx,
+      data: postBriefList,
+      message: '获取userPosts成功'
+    })
+    return
   }
 
   /**

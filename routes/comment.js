@@ -18,6 +18,11 @@ router.get('/comments/:id', CommentController.getComment)
 // 获取某文章下的所有评论列表（客户端获取post时，单独再获取comments，在getCommentList中populate生成replies）
 router.get('/posts/:id/comments', CommentController.getCommentList)
 
+// 获取某用户的所有评论列表
+// /users/${userId}/comments?userId=${loginUserId}
+router.get('/users/:id/comments', CommentController.getCommentListByUser)
+
+
 // 更新评论（检验是否属于本人评论）
 router.put('/comments/:id', userAuth, CommentController.updateComment)
 

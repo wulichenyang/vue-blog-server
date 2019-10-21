@@ -123,7 +123,7 @@ module.exports = {
    * @param {object} like 回复对象
    * @return {[string, boolean]} [错误信息，验证通过与否]
    */
-  checkLike: ({targetId, userId, type}) => {
+  checkLike: ({targetId, userId, type, authorId}) => {
     // if(err){
     //   return ['err info', false]
     // }

@@ -2,6 +2,8 @@ let commentModel = require('../models/comment');
 let postModel = require('../models/post');
 let replyModel = require('../models/reply');
 let likeModel = require('../models/like');
+let userModel = require('../models/user');
+
 let To = require('../utils/to');
 let {
   internalErrRes,
@@ -33,12 +35,17 @@ class LikeController {
     const targetId = ctx.params.id;
     // 获取用户信息
     const userId = ctx.userId;
+    // 点赞文本所属用户
+    const {
+      authorId
+    } = ctx.request.body
     // 检查like格式
     let err, isOk;
     [err, isOk] = checkLike({
       type,
       userId,
       targetId,
+      authorId,
     })
 
     // 检测错误，返回错误信息
@@ -70,7 +77,7 @@ class LikeController {
 
     // 找到则删除该点赞
     if (findLike) {
-      await LikeController.deleteLike(ctx, next, findLike)
+      await LikeController.deleteLike(ctx, next, findLike, authorId)
       return
     }
 
@@ -86,6 +93,21 @@ class LikeController {
       internalErrRes({
         ctx,
         err: txErr
+      })
+      return
+    }
+
+    // 开启事务
+    let userTxErr, isUserTxOk;
+    [userTxErr, isUserTxOk] = await userModel.startTransaction()
+
+    // 事务开启冲突
+    if (!isUserTxOk) {
+
+      // 返回错误信息
+      internalErrRes({
+        ctx,
+        err: userTxErr
       })
       return
     }
@@ -222,10 +244,68 @@ class LikeController {
       return
     }
 
+    // 检查点赞对象用户是否存在
+    let findUser;
+    [err, findUser] = await To(userModel.findOne({
+      query: {
+        _id: authorId
+      }
+    }))
+
+    if (err) {
+      internalErrRes({
+        ctx,
+        err
+      })
+      // 事务回滚
+      likeModel.rollback();
+      userModel.rollback();
+      return
+    }
+
+    // 没找到target
+    if (!findUser) {
+      internalErrRes({
+        ctx,
+        err: '点赞文本所属用户不存在'
+      })
+      // 事务回滚
+      likeModel.rollback();
+      userModel.rollback();
+      return
+    }
+
+    // 找到并且修改点赞文本所属用户的likeCount
+    // 更新target下和likeCount
+    let userRes;
+    let newUserLikeCount = findUser.likeCount + 1;
+
+    [err, userRes] = await To(userModel.update({
+      query: {
+        _id: authorId
+      },
+      update: {
+        likeCount: newUserLikeCount,
+      }
+    }))
+
+    // 更新失败，回滚事务，返回错误信息
+    if (err) {
+      internalErrRes({
+        ctx,
+        err
+      })
+      // 事务回滚
+      likeModel.rollback();
+      userModel.rollback();
+      return
+    }
+
     // TODO：推送消息
 
     // 关联操作成功，提交事务
     likeModel.endTransaction()
+    userModel.endTransaction()
 
     // 添加成功，返回成功信息
     successRes({
@@ -241,10 +321,11 @@ class LikeController {
    * 
    * @param ctx
    * @param next
-   * @param like 一条点赞 TODO: 点赞时对象用户+1
+   * @param like
+   * @param authorId 点赞文本所属用户id
    * @return {Promise.<void>}
    */
-  static async deleteLike(ctx, next, like) {
+  static async deleteLike(ctx, next, like, authorId) {
     // 开启事务
     let txErr, isTxOk;
     [txErr, isTxOk] = await likeModel.startTransaction()
@@ -256,6 +337,21 @@ class LikeController {
       internalErrRes({
         ctx,
         err: txErr
+      })
+      return
+    }
+
+    // 开启事务
+    let userTxErr, isUserTxOk;
+    [userTxErr, isUserTxOk] = await userModel.startTransaction()
+
+    // 事务开启冲突
+    if (!isUserTxOk) {
+
+      // 返回错误信息
+      internalErrRes({
+        ctx,
+        err: userTxErr
       })
       return
     }
@@ -390,10 +486,67 @@ class LikeController {
       return
     }
 
+    // 检查点赞对象用户是否存在
+    let findUser;
+    [err, findUser] = await To(userModel.findOne({
+      query: {
+        _id: authorId
+      }
+    }))
+
+    if (err) {
+      internalErrRes({
+        ctx,
+        err
+      })
+      // 事务回滚
+      likeModel.rollback();
+      userModel.rollback();
+      return
+    }
+
+    // 没找到target
+    if (!findUser) {
+      internalErrRes({
+        ctx,
+        err: '点赞文本所属用户不存在'
+      })
+      // 事务回滚
+      likeModel.rollback();
+      userModel.rollback();
+      return
+    }
+
+    // 找到并且修改点赞文本所属用户的likeCount
+    // 更新target下和likeCount
+    let userRes;
+    let newUserLikeCount = findUser.likeCount - 1;
+
+    [err, userRes] = await To(userModel.update({
+      query: {
+        _id: authorId
+      },
+      update: {
+        likeCount: newUserLikeCount,
+      }
+    }))
+
+    // 更新失败，回滚事务，返回错误信息
+    if (err) {
+      internalErrRes({
+        ctx,
+        err
+      })
+      // 事务回滚
+      likeModel.rollback();
+      userModel.rollback();
+      return
+    }
     // TODO：推送消息
 
     // 关联操作成功，提交事务
     likeModel.endTransaction()
+    userModel.endTransaction()
 
     successRes({
       ctx,
