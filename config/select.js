@@ -86,6 +86,11 @@ const userCommentSelect = {
 
 exports.userCommentSelect = userCommentSelect;
 
+exports.postInfoInCommentSelect = {
+  _id: 1,
+  title: 1,
+}
+
 exports.commentDetailSelect = {
   ...userCommentSelect,
   reply: 1,

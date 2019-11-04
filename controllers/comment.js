@@ -17,7 +17,8 @@ const {
   userBriefSelect,
   replyDetailSelect,
   commentDetailSelect,
-  userCommentSelect
+  userCommentSelect,
+  postInfoInCommentSelect
 } = require('../config/select')
 class CommentController {
 
@@ -320,6 +321,23 @@ class CommentController {
         }
       }
     }))
+    
+    // populate Post 数据
+    let populateOption = {
+      path: 'postId',
+      model: 'Post',
+      select: postInfoInCommentSelect,
+    };
+
+    [err, commentListRes] = await To(commentModel.populate({
+      collections: commentListRes,
+      options: populateOption
+    }))
+
+    // 查找失败，返回错误信息
+    if (err) {
+      ctx.throw(500, err);
+    }
 
     console.log(commentListRes)
 
