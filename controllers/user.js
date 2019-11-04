@@ -25,7 +25,6 @@ const {
   genToken
 } = require('../middleware/auth');
 const {
-  internalErrRes,
   successRes
 } = require('../utils/response');
 
@@ -49,10 +48,7 @@ class UserController {
     } else if (by === 'email') {
       await UserController.signUpByEmail(ctx, next)
     } else {
-      internalErrRes({
-        ctx,
-        err: '无效注册方式'
-      })
+      ctx.throw(500, '无效注册方式');
       return
     }
   }
@@ -75,10 +71,7 @@ class UserController {
     } else if (by === 'email') {
       await UserController.signInByEmail(ctx, next)
     } else {
-      internalErrRes({
-        ctx,
-        err: '无效登录方式'
-      })
+      ctx.throw(500, '无效登录方式');
       return
     }
   }
@@ -103,10 +96,7 @@ class UserController {
 
     // 格式错误
     if (!isOk) {
-      internalErrRes({
-        ctx,
-        err
-      })
+      ctx.throw(500, err);
       return
     }
 
@@ -118,10 +108,7 @@ class UserController {
 
     // 格式错误
     if (!isOk) {
-      internalErrRes({
-        ctx,
-        err
-      })
+      ctx.throw(500, err);
       return
     }
 
@@ -133,10 +120,7 @@ class UserController {
 
     // 格式错误
     if (!isOk) {
-      internalErrRes({
-        ctx,
-        err
-      })
+      ctx.throw(500, err);
       return
     }
 
@@ -153,20 +137,14 @@ class UserController {
 
     // 查询错误
     if (err) {
-      internalErrRes({
-        ctx,
-        err
-      })
+      ctx.throw(500, err);
       return
     }
 
     console.log('findPhone', findPhone)
     // 手机号已被注册
     if (findPhone) {
-      internalErrRes({
-        ctx,
-        err: '该手机号已被注册'
-      })
+      ctx.throw(500, '该手机号已被注册');
       return
     }
 
@@ -181,19 +159,13 @@ class UserController {
 
     // 查询错误
     if (err) {
-      internalErrRes({
-        ctx,
-        err
-      })
+      ctx.throw(500, err);
       return
     }
 
     // 昵称已被注册
     if (findUser) {
-      internalErrRes({
-        ctx,
-        err: '该昵称已被注册'
-      })
+      ctx.throw(500, '该昵称已被注册');
       return
     }
 
@@ -210,10 +182,7 @@ class UserController {
     if (!isTxOk) {
 
       // 返回错误信息
-      internalErrRes({
-        ctx,
-        err: txErr
-      })
+      ctx.throw(500, txErr);
       return
     }
 
@@ -227,10 +196,7 @@ class UserController {
 
     // 注册用户错误
     if (err) {
-      internalErrRes({
-        ctx,
-        err
-      })
+      ctx.throw(500, err);
 
       // 事务回滚
       await userModel.rollback();
@@ -251,10 +217,7 @@ class UserController {
     if (err) {
 
       // 返回错误信息
-      internalErrRes({
-        ctx,
-        err
-      })
+      ctx.throw(500, err);
 
       // 用户信息保存事务回滚
       await userModel.rollback()
@@ -293,10 +256,7 @@ class UserController {
 
     // 格式错误
     if (!isOk) {
-      internalErrRes({
-        ctx,
-        err
-      })
+      ctx.throw(500, err);
       return
     }
 
@@ -308,10 +268,7 @@ class UserController {
 
     // 格式错误
     if (!isOk) {
-      internalErrRes({
-        ctx,
-        err
-      })
+      ctx.throw(500, err);
       return
     }
 
@@ -322,10 +279,7 @@ class UserController {
 
     // 格式错误
     if (!isOk) {
-      internalErrRes({
-        ctx,
-        err
-      })
+      ctx.throw(500, err);
       return
     }
 
@@ -342,20 +296,14 @@ class UserController {
 
     // 查询错误
     if (err) {
-      internalErrRes({
-        ctx,
-        err
-      })
+      ctx.throw(500, err);
       return
     }
 
     console.log('findEmail', findEmail)
     // 手机号已被注册
     if (findEmail) {
-      internalErrRes({
-        ctx,
-        err: '该邮箱已被注册'
-      })
+      ctx.throw(500, '该邮箱已被注册');
       return
     }
 
@@ -370,19 +318,13 @@ class UserController {
 
     // 查询错误
     if (err) {
-      internalErrRes({
-        ctx,
-        err
-      })
+      ctx.throw(500, err);
       return
     }
 
     // 昵称已被注册
     if (findUser) {
-      internalErrRes({
-        ctx,
-        err: '该昵称已被注册'
-      })
+      ctx.throw(500, '该昵称已被注册');
       return
     }
 
@@ -399,10 +341,7 @@ class UserController {
     if (!isTxOk) {
 
       // 返回错误信息
-      internalErrRes({
-        ctx,
-        err: txErr
-      })
+      ctx.throw(500, txErr);
       return
     }
 
@@ -416,10 +355,7 @@ class UserController {
 
     // 注册用户错误
     if (err) {
-      internalErrRes({
-        ctx,
-        err
-      })
+      ctx.throw(500, err);
 
       // 事务回滚
       await userModel.rollback();
@@ -440,10 +376,7 @@ class UserController {
     if (err) {
 
       // 返回错误信息
-      internalErrRes({
-        ctx,
-        err
-      })
+      ctx.throw(500, err);
 
       // 用户信息保存事务回滚
       await userModel.rollback()
@@ -481,10 +414,7 @@ class UserController {
 
     // 格式错误，返回错误信息
     if (!isOk) {
-      internalErrRes({
-        ctx,
-        err
-      })
+      ctx.throw(500, err);
       return
     }
 
@@ -498,19 +428,13 @@ class UserController {
 
     // 查询出错，返回错误信息
     if (err) {
-      internalErrRes({
-        ctx,
-        err
-      })
+      ctx.throw(500, err);
       return
     }
 
     // 手机号不存在，返回错误信息
     if (!findPhone) {
-      internalErrRes({
-        ctx,
-        err: '手机号或密码错误'
-      })
+      ctx.throw(500, '手机号或密码错误');
       return
     }
 
@@ -527,19 +451,13 @@ class UserController {
 
     // 查询错误，返回错误信息
     if (err) {
-      internalErrRes({
-        ctx,
-        err
-      })
+      ctx.throw(500, err);
       return
     }
 
     // 用户不存在，返回错误信息
     if (!findUser) {
-      internalErrRes({
-        ctx,
-        err: '手机号或密码错误'
-      })
+      ctx.throw(500, '手机号或密码错误');
       return
     }
 
@@ -551,10 +469,7 @@ class UserController {
 
     // 密码格式错误，返回错误信息
     if (err) {
-      internalErrRes({
-        ctx,
-        err
-      })
+      ctx.throw(500, err);
       return
     }
 
@@ -563,10 +478,7 @@ class UserController {
 
     // 密码不正确，返回错误信息
     if (encryptedPwd !== findUser.password) {
-      internalErrRes({
-        ctx,
-        err: '手机号或密码错误'
-      })
+      ctx.throw(500, '手机号或密码错误');
       return
     }
 
@@ -611,10 +523,7 @@ class UserController {
 
     // 格式错误，返回错误信息
     if (!isOk) {
-      internalErrRes({
-        ctx,
-        err
-      })
+      ctx.throw(500, err);
       return
     }
 
@@ -628,19 +537,13 @@ class UserController {
 
     // 查询出错，返回错误信息
     if (err) {
-      internalErrRes({
-        ctx,
-        err
-      })
+      ctx.throw(500, err);
       return
     }
 
     // 邮箱号不存在，返回错误信息
     if (!findEmail) {
-      internalErrRes({
-        ctx,
-        err: '邮箱号或密码错误'
-      })
+      ctx.throw(500, '邮箱号或密码错误');
       return
     }
 
@@ -657,19 +560,13 @@ class UserController {
 
     // 查询错误，返回错误信息
     if (err) {
-      internalErrRes({
-        ctx,
-        err
-      })
+      ctx.throw(500, err);
       return
     }
 
     // 用户不存在，返回错误信息
     if (!findUser) {
-      internalErrRes({
-        ctx,
-        err: '邮箱号或密码错误'
-      })
+      ctx.throw(500, '邮箱号或密码错误');
       return
     }
 
@@ -681,10 +578,7 @@ class UserController {
 
     // 密码格式错误，返回错误信息
     if (err) {
-      internalErrRes({
-        ctx,
-        err
-      })
+      ctx.throw(500, err);
       return
     }
 
@@ -693,10 +587,7 @@ class UserController {
 
     // 密码不正确，返回错误信息
     if (encryptedPwd !== findUser.password) {
-      internalErrRes({
-        ctx,
-        err: '邮箱号或密码错误'
-      })
+      ctx.throw(500, '邮箱号或密码错误');
       return
     }
 
@@ -859,19 +750,13 @@ class UserController {
 
     // 查找错误，返回错误信息
     if (err) {
-      internalErrRes({
-        ctx,
-        err
-      })
+      ctx.throw(500, err);
       return
     }
 
     // 用户不存在，返回错误信息
     if (!findUser) {
-      internalErrRes({
-        ctx,
-        err: '未找到用户'
-      })
+      ctx.throw(500, '未找到用户');
       return
     }
 
@@ -884,10 +769,7 @@ class UserController {
 
       // 查找错误，返回错误信息
       if (err) {
-        internalErrRes({
-          ctx,
-          err
-        })
+        ctx.throw(500, err);
         return
       }
 
@@ -905,10 +787,7 @@ class UserController {
 
       // 查找错误，返回错误信息
       if (err) {
-        internalErrRes({
-          ctx,
-          err
-        })
+        ctx.throw(500, err);
         return
       }
 
@@ -988,10 +867,7 @@ class UserController {
     // 检查修改信息格式
     [err, isOk] = checkUserUpdateObj(updateObj)
     if (!isOk) {
-      internalErrRes({
-        ctx,
-        err
-      })
+      ctx.throw(500, err);
       return
     }
 
@@ -1006,10 +882,7 @@ class UserController {
 
     // 更新失败，返回错误信息
     if (err) {
-      internalErrRes({
-        ctx,
-        err
-      })
+      ctx.throw(500, err);
       return
     }
 

@@ -1,7 +1,6 @@
 let categoryModel = require('../models/category');
 let To = require('../utils/to');
 let {
-  internalErrRes,
   successRes
 } = require('../utils/response');
 const {
@@ -41,10 +40,7 @@ class CategoryController {
 
     // 检查失败，返回错误信息
     if (err) {
-      internalErrRes({
-        ctx,
-        err
-      })
+      ctx.throw(500, err);
       return
     }
 
@@ -59,19 +55,13 @@ class CategoryController {
 
     // 查询失败，返回错误信息
     if (err) {
-      internalErrRes({
-        ctx,
-        err
-      })
+      ctx.throw(500, err);
       return
     }
 
     // 分类名冲突返回错误信息
     if (findCategory) {
-      internalErrRes({
-        ctx,
-        err: '该文章分类已创建过'
-      })
+      ctx.throw(500, '该文章分类已创建过');
       return
     }
 
@@ -88,10 +78,7 @@ class CategoryController {
 
     // 插入失败，返回错误信息
     if (err) {
-      internalErrRes({
-        ctx,
-        err
-      })
+      ctx.throw(500, err);
       return
     }
 
@@ -150,18 +137,12 @@ class CategoryController {
     }))
 
     if (err) {
-      internalErrRes({
-        ctx,
-        err
-      })
+      ctx.throw(500, err);
       return
     }
 
     if (!findCategory) {
-      internalErrRes({
-        ctx,
-        err: '查找分类详细信息失败'
-      })
+      ctx.throw(500, '查找分类详细信息失败');
       return
     }
 
@@ -195,18 +176,12 @@ class CategoryController {
     }))
 
     if (err) {
-      internalErrRes({
-        ctx,
-        err
-      })
+      ctx.throw(500, err);
       return
     }
 
     if (!findCategoryList) {
-      internalErrRes({
-        ctx,
-        err: '查找分类失败'
-      })
+      ctx.throw(500, '查找分类失败');
       return
     }
 
@@ -263,10 +238,7 @@ class CategoryController {
 
     // 检测错误，返回错误信息
     if (!isOk) {
-      internalErrRes({
-        ctx,
-        err
-      })
+      ctx.throw(500, err);
       return
     }
 
@@ -286,10 +258,7 @@ class CategoryController {
 
     // 修改失败，返回错误信息
     if (err) {
-      internalErrRes({
-        ctx,
-        err
-      })
+      ctx.throw(500, err);
       return
     }
 

@@ -1,6 +1,5 @@
 let {
   successRes,
-  internalErrRes
 } = require('../utils/response');
 let {
   mac,
@@ -61,10 +60,7 @@ class UploadController {
     await new Promise((r, f) => {
       bucketManager.delete(bucket, key, function (err, respBody, respInfo) {
         if (err) {
-          internalErrRes({
-            ctx,
-            err
-          })
+          ctx.throw(500, err);
           f(err)
         } else {
           successRes({

@@ -4,7 +4,6 @@ let userModel = require('../models/user')
 let To = require('../utils/to');
 let likeModel = require('../models/like');
 let {
-  internalErrRes,
   successRes
 } = require('../utils/response');
 const {
@@ -56,11 +55,7 @@ class PostController {
 
     // 检查失败，返回错误信息
     if (err) {
-      internalErrRes({
-        ctx,
-        err
-      })
-      return
+      ctx.throw(500, err);
     }
 
     if (state === 'published') {
@@ -70,10 +65,7 @@ class PostController {
       // 保存草稿
       await PostController.addDraftPost(ctx, next)
     } else {
-      internalErrRes({
-        ctx,
-        err: "发布状态错误"
-      })
+      ctx.throw(500, "发布状态错误")
       return
     }
   }
@@ -104,19 +96,12 @@ class PostController {
 
     // 查找category错误
     if (err) {
-      internalErrRes({
-        ctx,
-        err
-      })
-      return
+      ctx.throw(500, err);
     }
 
     // 没找到category
     if (!findCategory) {
-      internalErrRes({
-        ctx,
-        err: '没有该文章分类'
-      })
+      ctx.throw(500, '没有该文章分类')
       return
     }
 
@@ -130,19 +115,12 @@ class PostController {
 
     // 查找user错误
     if (err) {
-      internalErrRes({
-        ctx,
-        err
-      })
-      return
+      ctx.throw(500, err);
     }
 
     // 没找到user
     if (!findUser) {
-      internalErrRes({
-        ctx,
-        err: '没有该用户'
-      })
+      ctx.throw(500, '没有该用户')
       return
     }
 
@@ -154,10 +132,7 @@ class PostController {
     if (!isTxOk) {
 
       // 返回错误信息
-      internalErrRes({
-        ctx,
-        err: txErr
-      })
+      ctx.throw(500, txErr)
       return
     }
 
@@ -175,11 +150,7 @@ class PostController {
 
     // 更新失败，回滚事务，返回错误信息
     if (err) {
-      internalErrRes({
-        ctx,
-        err
-      })
-
+      ctx.throw(500, err)
       // 事务回滚
       categoryModel.rollback();
       return
@@ -192,10 +163,7 @@ class PostController {
     if (!isTxOk) {
 
       // 返回错误信息
-      internalErrRes({
-        ctx,
-        err: txErr
-      })
+      ctx.throw(500, txErr)
       return
     }
 
@@ -213,11 +181,7 @@ class PostController {
 
     // 更新失败，回滚事务，返回错误信息
     if (err) {
-      internalErrRes({
-        ctx,
-        err
-      })
-
+      ctx.throw(500, err)
       // 事务回滚
       userModel.rollback();
       categoryModel.rollback();
@@ -240,10 +204,7 @@ class PostController {
     if (err) {
 
       // 返回错误信息
-      internalErrRes({
-        ctx,
-        err
-      })
+      ctx.throw(500, err)
 
       // 事务回滚
       categoryModel.rollback()
@@ -331,11 +292,7 @@ class PostController {
     let err, isOk;
     [err, isOk] = await PostController.addViewCount(ctx, next, id)
     if (!isOk) {
-      internalErrRes({
-        ctx,
-        err
-      })
-      return
+      ctx.throw(500, err);
     }
 
     // 根据postId查找文章详细信息
@@ -349,11 +306,7 @@ class PostController {
 
     // 查找失败，返回错误信息
     if (err) {
-      internalErrRes({
-        ctx,
-        err
-      })
-      return
+      ctx.throw(500, err);
     }
 
     let populateOptions = [{
@@ -418,11 +371,7 @@ class PostController {
 
     // 查找失败，返回错误信息
     if (err) {
-      internalErrRes({
-        ctx,
-        err
-      })
-      return
+      ctx.throw(500, err);
     }
 
     console.log(userId)
@@ -441,10 +390,7 @@ class PostController {
 
       // 查找失败，返回错误信息
       if (err) {
-        internalErrRes({
-          ctx,
-          err
-        })
+        ctx.throw(500, err)
         return
       }
 
@@ -469,10 +415,7 @@ class PostController {
 
       // 查找失败，返回错误信息
       if (err) {
-        internalErrRes({
-          ctx,
-          err
-        })
+        ctx.throw(500, err)
         return
       }
 
@@ -517,10 +460,7 @@ class PostController {
 
       // 查找失败，返回错误信息
       if (err) {
-        internalErrRes({
-          ctx,
-          err
-        })
+        ctx.throw(500, err)
         return
       }
 
@@ -600,34 +540,30 @@ class PostController {
 
     // 查找失败，返回错误信息
     if (err) {
-      internalErrRes({
-        ctx,
-        err
-      })
-      return
+      ctx.throw(500, err);
     }
 
     // let populateOptions = postBriefPopulateOptions;
-      // {
-      //   //TODO:
-      //   path: 'comment',
-      //   model: 'Comment',
-      //   // match: {
-      //   // },
-      //   select: {
-      //     // '_id': 1,
-      //     // 'content_html': 1,
-      //     // 'create_at': 1,
-      //     // 'reply_count': 1,
-      //     // 'like_count': 1,
-      //     // 'user_id': 1,
-      //     // 'posts_id': 1
-      //   },
-      //   options: {
-      //     // limit: commentsLimit,
-      //     // sort: _commentsSort
-      //   }
-      // }
+    // {
+    //   //TODO:
+    //   path: 'comment',
+    //   model: 'Comment',
+    //   // match: {
+    //   // },
+    //   select: {
+    //     // '_id': 1,
+    //     // 'content_html': 1,
+    //     // 'create_at': 1,
+    //     // 'reply_count': 1,
+    //     // 'like_count': 1,
+    //     // 'user_id': 1,
+    //     // 'posts_id': 1
+    //   },
+    //   options: {
+    //     // limit: commentsLimit,
+    //     // sort: _commentsSort
+    //   }
+    // }
     // ];
 
     // populatecategory和用户数据
@@ -638,11 +574,7 @@ class PostController {
     }))
     // 查找失败，返回错误信息
     if (err) {
-      internalErrRes({
-        ctx,
-        err
-      })
-      return
+      ctx.throw(500, err);
     }
 
     // 如果登录，则对每条post，查找是否点赞
@@ -661,10 +593,7 @@ class PostController {
 
       // 查找失败，返回错误信息
       if (err) {
-        internalErrRes({
-          ctx,
-          err
-        })
+        ctx.throw(500, err)
         return
       }
 
@@ -725,13 +654,9 @@ class PostController {
 
     // 查找Posts错误
     if (err) {
-      internalErrRes({
-        ctx,
-        err
-      })
-      return
+      ctx.throw(500, err);
     }
-    
+
     // populate category和用户数据
     let postBriefList;
     [err, postBriefList] = await To(postModel.populate({
@@ -741,11 +666,7 @@ class PostController {
 
     // 查找失败，返回错误信息
     if (err) {
-      internalErrRes({
-        ctx,
-        err
-      })
-      return
+      ctx.throw(500, err);
     }
 
     // 如果登录，则对每条post，查找是否点赞
@@ -765,10 +686,7 @@ class PostController {
 
       // 查找失败，返回错误信息
       if (err) {
-        internalErrRes({
-          ctx,
-          err
-        })
+        ctx.throw(500, err)
         return
       }
 

@@ -1,16 +1,16 @@
-/**
-* 返回错误信息
-* 
-* @param {object} ctx
-* @param {string} err 返回错误信息
-*/
-exports.internalErrRes = ({ctx, err}) => {
-  ctx.status = 500
-  ctx.body = {
-    code: 1,
-    message: err
-  }
-}
+// /**
+// * 返回错误信息
+// * 
+// * @param {object} ctx
+// * @param {string} err 返回错误信息
+// */
+// exports.internalErrRes = ({ctx, err}) => {
+//   ctx.status = 500
+//   ctx.body = {
+//     code: 1,
+//     message: err
+//   }
+// }
 /**
 * 返回成功信息
 * 

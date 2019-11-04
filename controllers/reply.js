@@ -2,7 +2,6 @@ let commentModel = require('../models/comment');
 let replyModel = require('../models/reply');
 let To = require('../utils/to');
 let {
-  internalErrRes,
   successRes
 } = require('../utils/response');
 const {
@@ -47,10 +46,7 @@ class ReplyController {
 
     // 检测错误，返回错误信息
     if (!isOk) {
-      internalErrRes({
-        ctx,
-        err
-      })
+      ctx.throw(500, err);
       return
     }
 
@@ -62,10 +58,7 @@ class ReplyController {
     if (!isTxOk) {
 
       // 返回错误信息
-      internalErrRes({
-        ctx,
-        err: txErr
-      })
+      ctx.throw(500, txErr);
       return
     }
 
@@ -83,10 +76,7 @@ class ReplyController {
 
     // 插入失败，返回错误信息
     if (err) {
-      internalErrRes({
-        ctx,
-        err
-      })
+      ctx.throw(500, err);
       // 事务回滚
       replyModel.rollback();
       return
@@ -102,10 +92,7 @@ class ReplyController {
 
     // 查找comment错误
     if (err) {
-      internalErrRes({
-        ctx,
-        err
-      })
+      ctx.throw(500, err);
       // 事务回滚
       replyModel.rollback();
       return
@@ -113,10 +100,7 @@ class ReplyController {
 
     // 没找到comment
     if (!findComment) {
-      internalErrRes({
-        ctx,
-        err: '评论不存在'
-      })
+      ctx.throw(500, '评论不存在');
       // 事务回滚
       replyModel.rollback();
       return
@@ -141,10 +125,7 @@ class ReplyController {
 
     // 更新失败，回滚事务，返回错误信息
     if (err) {
-      internalErrRes({
-        ctx,
-        err
-      })
+      ctx.throw(500, err);
       // 事务回滚
       replyModel.rollback();
       return
@@ -176,10 +157,7 @@ class ReplyController {
 
     // 查找失败，返回错误信息
     if (err) {
-      internalErrRes({
-        ctx,
-        err
-      })
+      ctx.throw(500, err);
       return
     }
 

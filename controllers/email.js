@@ -7,7 +7,6 @@ let userModel = require('../models/user');
 // } = require('../utils/validate');
 let To = require('../utils/to');
 let {
-  internalErrRes,
   successRes
 } = require('../utils/response');
 

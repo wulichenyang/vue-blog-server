@@ -4,7 +4,6 @@ let postModel = require('../models/post');
 let likeModel = require('../models/like');
 let To = require('../utils/to');
 let {
-  internalErrRes,
   successRes
 } = require('../utils/response');
 const {
@@ -49,10 +48,7 @@ class CommentController {
 
     // 检测错误，返回错误信息
     if (!isOk) {
-      internalErrRes({
-        ctx,
-        err
-      })
+      ctx.throw(500, err);
       return
     }
 
@@ -64,10 +60,7 @@ class CommentController {
     if (!isTxOk) {
 
       // 返回错误信息
-      internalErrRes({
-        ctx,
-        err: commentTxErr
-      })
+      ctx.throw(500, commentTxErr);
       return
     }
 
@@ -79,10 +72,7 @@ class CommentController {
     if (!isUserTxOk) {
 
       // 返回错误信息
-      internalErrRes({
-        ctx,
-        err: userTxErr
-      })
+      ctx.throw(500, userTxErr);
       return
     }
 
@@ -99,10 +89,7 @@ class CommentController {
 
     // 插入失败，返回错误信息
     if (err) {
-      internalErrRes({
-        ctx,
-        err
-      })
+      ctx.throw(500, err);
       // 事务回滚
       commentModel.rollback();
       return
@@ -118,10 +105,7 @@ class CommentController {
 
     // 查找post错误
     if (err) {
-      internalErrRes({
-        ctx,
-        err
-      })
+      ctx.throw(500, err);
       // 事务回滚
       commentModel.rollback();
       return
@@ -129,10 +113,7 @@ class CommentController {
 
     // 没找到post
     if (!findPost) {
-      internalErrRes({
-        ctx,
-        err: '文章不存在'
-      })
+      ctx.throw(500, '文章不存在');
       // 事务回滚
       commentModel.rollback();
       return
@@ -159,10 +140,7 @@ class CommentController {
 
     // 更新失败，回滚事务，返回错误信息
     if (err) {
-      internalErrRes({
-        ctx,
-        err
-      })
+      ctx.throw(500, err);
       // 事务回滚
       commentModel.rollback();
       return
@@ -179,10 +157,7 @@ class CommentController {
 
     // 查找user错误
     if (err) {
-      internalErrRes({
-        ctx,
-        err
-      })
+      ctx.throw(500, err);
       // 事务回滚
       commentModel.rollback();
       userModel.rollback();
@@ -191,10 +166,7 @@ class CommentController {
 
     // 没找到user
     if (!findUser) {
-      internalErrRes({
-        ctx,
-        err: '用户不存在'
-      })
+      ctx.throw(500, '用户不存在');
       // 事务回滚
       commentModel.rollback();
       userModel.rollback();
@@ -217,10 +189,7 @@ class CommentController {
 
     // 更新失败，回滚事务，返回错误信息
     if (err) {
-      internalErrRes({
-        ctx,
-        err
-      })
+      ctx.throw(500, err);
       // 事务回滚
       commentModel.rollback();
       userModel.rollback();
@@ -273,10 +242,7 @@ class CommentController {
 
     // 查找失败，返回错误信息
     if (err) {
-      internalErrRes({
-        ctx,
-        err
-      })
+      ctx.throw(500, err);
       return
     }
 
@@ -359,10 +325,7 @@ class CommentController {
 
     // 查找失败，返回错误信息
     if (err) {
-      internalErrRes({
-        ctx,
-        err
-      })
+      ctx.throw(500, err);
       return
     }
 
@@ -384,10 +347,7 @@ class CommentController {
 
       // 查找失败，返回错误信息
       if (err) {
-        internalErrRes({
-          ctx,
-          err
-        })
+        ctx.throw(500, err);
         return
       }
 
@@ -405,10 +365,7 @@ class CommentController {
 
       // 查找失败，返回错误信息
       if (err) {
-        internalErrRes({
-          ctx,
-          err
-        })
+        ctx.throw(500, err);
         return
       }
 

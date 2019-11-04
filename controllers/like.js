@@ -6,7 +6,6 @@ let userModel = require('../models/user');
 
 let To = require('../utils/to');
 let {
-  internalErrRes,
   successRes
 } = require('../utils/response');
 
@@ -50,10 +49,7 @@ class LikeController {
 
     // 检测错误，返回错误信息
     if (!isOk) {
-      internalErrRes({
-        ctx,
-        err
-      })
+      ctx.throw(500, err);
       return
     }
 
@@ -68,10 +64,7 @@ class LikeController {
     }))
 
     if (err) {
-      internalErrRes({
-        ctx,
-        err
-      })
+      ctx.throw(500, err);
       return
     }
 
@@ -90,10 +83,7 @@ class LikeController {
     if (!isTxOk) {
 
       // 返回错误信息
-      internalErrRes({
-        ctx,
-        err: txErr
-      })
+      ctx.throw(500, txErr);
       return
     }
 
@@ -105,10 +95,7 @@ class LikeController {
     if (!isUserTxOk) {
 
       // 返回错误信息
-      internalErrRes({
-        ctx,
-        err: userTxErr
-      })
+      ctx.throw(500, userTxErr);
       return
     }
 
@@ -124,10 +111,7 @@ class LikeController {
 
     // 插入失败，返回错误信息
     if (err) {
-      internalErrRes({
-        ctx,
-        err
-      })
+      ctx.throw(500, err);
       // 事务回滚
       likeModel.rollback();
       return
@@ -159,19 +143,13 @@ class LikeController {
         break;
 
       default:
-        internalErrRes({
-          ctx,
-          err: "点赞类型错误"
-        })
+        ctx.throw(500, "点赞类型错误");
         return;
         break;
     }
 
     if (err) {
-      internalErrRes({
-        ctx,
-        err
-      })
+      ctx.throw(500, err);
       // 事务回滚
       likeModel.rollback();
       return
@@ -179,10 +157,7 @@ class LikeController {
 
     // 没找到target
     if (!findTarget) {
-      internalErrRes({
-        ctx,
-        err: '点赞对象不存在'
-      })
+      ctx.throw(500, '点赞对象不存在');
       // 事务回滚
       likeModel.rollback();
       return
@@ -226,19 +201,13 @@ class LikeController {
         break;
 
       default:
-        internalErrRes({
-          ctx,
-          err: "点赞类型错误"
-        })
+        ctx.throw(500, "点赞类型错误");
         break;
     }
 
     // 更新失败，回滚事务，返回错误信息
     if (err) {
-      internalErrRes({
-        ctx,
-        err
-      })
+      ctx.throw(500, err);
       // 事务回滚
       likeModel.rollback();
       return
@@ -253,10 +222,7 @@ class LikeController {
     }))
 
     if (err) {
-      internalErrRes({
-        ctx,
-        err
-      })
+      ctx.throw(500, err);
       // 事务回滚
       likeModel.rollback();
       userModel.rollback();
@@ -265,10 +231,7 @@ class LikeController {
 
     // 没找到target
     if (!findUser) {
-      internalErrRes({
-        ctx,
-        err: '点赞文本所属用户不存在'
-      })
+      ctx.throw(500, '点赞文本所属用户不存在');
       // 事务回滚
       likeModel.rollback();
       userModel.rollback();
@@ -291,10 +254,7 @@ class LikeController {
 
     // 更新失败，回滚事务，返回错误信息
     if (err) {
-      internalErrRes({
-        ctx,
-        err
-      })
+      ctx.throw(500, err);
       // 事务回滚
       likeModel.rollback();
       userModel.rollback();
@@ -334,10 +294,7 @@ class LikeController {
     if (!isTxOk) {
 
       // 返回错误信息
-      internalErrRes({
-        ctx,
-        err: txErr
-      })
+      ctx.throw(500, txErr);
       return
     }
 
@@ -349,10 +306,7 @@ class LikeController {
     if (!isUserTxOk) {
 
       // 返回错误信息
-      internalErrRes({
-        ctx,
-        err: userTxErr
-      })
+      ctx.throw(500, userTxErr);
       return
     }
 
@@ -366,10 +320,7 @@ class LikeController {
 
     // 删除失败，返回错误信息
     if (err) {
-      internalErrRes({
-        ctx,
-        err
-      })
+      ctx.throw(500, err);
       // 事务回滚
       likeModel.rollback();
       return
@@ -401,18 +352,12 @@ class LikeController {
         break;
 
       default:
-        internalErrRes({
-          ctx,
-          err: "点赞类型错误"
-        })
+        ctx.throw(500, "点赞类型错误");
         break;
     }
 
     if (err) {
-      internalErrRes({
-        ctx,
-        err
-      })
+      ctx.throw(500, err);
       // 事务回滚
       likeModel.rollback();
       return
@@ -420,10 +365,7 @@ class LikeController {
 
     // 没找到target
     if (!findTarget) {
-      internalErrRes({
-        ctx,
-        err: '点赞对象不存在'
-      })
+      ctx.throw(500, '点赞对象不存在');
       // 事务回滚
       likeModel.rollback();
       return
@@ -467,20 +409,14 @@ class LikeController {
         break;
 
       default:
-        internalErrRes({
-          ctx,
-          err: "点赞类型错误"
-        })
+        ctx.throw(500, "点赞类型错误");
         return;
         break;
     }
 
     // 更新失败，回滚事务，返回错误信息
     if (err) {
-      internalErrRes({
-        ctx,
-        err
-      })
+      ctx.throw(500, err);
       // 事务回滚
       likeModel.rollback();
       return
@@ -495,10 +431,7 @@ class LikeController {
     }))
 
     if (err) {
-      internalErrRes({
-        ctx,
-        err
-      })
+      ctx.throw(500, err);
       // 事务回滚
       likeModel.rollback();
       userModel.rollback();
@@ -507,10 +440,7 @@ class LikeController {
 
     // 没找到target
     if (!findUser) {
-      internalErrRes({
-        ctx,
-        err: '点赞文本所属用户不存在'
-      })
+      ctx.throw(500, '点赞文本所属用户不存在');
       // 事务回滚
       likeModel.rollback();
       userModel.rollback();
@@ -533,10 +463,7 @@ class LikeController {
 
     // 更新失败，回滚事务，返回错误信息
     if (err) {
-      internalErrRes({
-        ctx,
-        err
-      })
+      ctx.throw(500, err);
       // 事务回滚
       likeModel.rollback();
       userModel.rollback();

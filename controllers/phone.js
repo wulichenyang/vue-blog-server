@@ -7,7 +7,6 @@ const To = require('../utils/to')
 //   checkPwd
 // } = require('../utils/validate')
 const {
-  internalErrRes,
   successRes
 } = require('../utils/response')
 
