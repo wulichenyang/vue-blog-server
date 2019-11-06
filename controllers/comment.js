@@ -321,17 +321,21 @@ class CommentController {
         }
       }
     }))
-    
+
     // populate Post 数据
-    let populateOption = {
+    let populateOptions = [{
       path: 'postId',
       model: 'Post',
       select: postInfoInCommentSelect,
-    };
+    }, {
+      path: 'author',
+      model: 'User',
+      select: userBriefSelect,
+    }];
 
     [err, commentListRes] = await To(commentModel.populate({
       collections: commentListRes,
-      options: populateOption
+      options: populateOptions
     }))
 
     // 查找失败，返回错误信息
