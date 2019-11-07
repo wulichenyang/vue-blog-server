@@ -150,9 +150,9 @@ class PostController {
 
     // 更新失败，回滚事务，返回错误信息
     if (err) {
-      ctx.throw(500, err)
       // 事务回滚
       categoryModel.rollback();
+      ctx.throw(500, err)
       return
     }
 
@@ -181,10 +181,10 @@ class PostController {
 
     // 更新失败，回滚事务，返回错误信息
     if (err) {
-      ctx.throw(500, err)
       // 事务回滚
       userModel.rollback();
       categoryModel.rollback();
+      ctx.throw(500, err)
       return
     }
 
@@ -202,13 +202,13 @@ class PostController {
 
     // 添加文章失败，回滚事务
     if (err) {
+      // 事务回滚
+      categoryModel.rollback()
+      userModel.rollback()
 
       // 返回错误信息
       ctx.throw(500, err)
 
-      // 事务回滚
-      categoryModel.rollback()
-      userModel.rollback()
       return
     }
 

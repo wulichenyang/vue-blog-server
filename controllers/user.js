@@ -196,10 +196,9 @@ class UserController {
 
     // 注册用户错误
     if (err) {
-      ctx.throw(500, err);
-
       // 事务回滚
       await userModel.rollback();
+      ctx.throw(500, err);
       return
     }
 
@@ -215,12 +214,10 @@ class UserController {
 
     // 注册手机号错误 回滚所有操作
     if (err) {
-
-      // 返回错误信息
-      ctx.throw(500, err);
-
       // 用户信息保存事务回滚
       await userModel.rollback()
+      // 返回错误信息
+      ctx.throw(500, err);
       return
     }
 
@@ -355,10 +352,9 @@ class UserController {
 
     // 注册用户错误
     if (err) {
-      ctx.throw(500, err);
-
       // 事务回滚
       await userModel.rollback();
+      ctx.throw(500, err);
       return
     }
 
@@ -374,12 +370,10 @@ class UserController {
 
     // 注册邮箱号错误 回滚所有操作
     if (err) {
-
-      // 返回错误信息
-      ctx.throw(500, err);
-
       // 用户信息保存事务回滚
       await userModel.rollback()
+      // 返回错误信息
+      ctx.throw(500, err);
       return
     }
 

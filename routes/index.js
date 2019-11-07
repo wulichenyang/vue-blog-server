@@ -9,6 +9,7 @@ const upload = require('./upload')
 const comment = require('./comment')
 const reply = require('./reply')
 const like = require('./like')
+const follow = require('./follow')
 
 router.get('/', async (ctx, next) => {
   await ctx.render('index', {
@@ -43,6 +44,8 @@ const addRoutes = (rootRouter) => {
   rootRouter.use(ApiPrefix, reply.routes(), reply.allowedMethods())
 
   rootRouter.use(ApiPrefix, like.routes(), like.allowedMethods())
+
+  rootRouter.use(ApiPrefix, follow.routes(), follow.allowedMethods())
 }
 
 exports.addRoutes = addRoutes

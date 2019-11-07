@@ -90,9 +90,9 @@ class CommentController {
 
     // 插入失败，返回错误信息
     if (err) {
-      ctx.throw(500, err);
       // 事务回滚
       commentModel.rollback();
+      ctx.throw(500, err);
       return
     }
 
@@ -106,17 +106,17 @@ class CommentController {
 
     // 查找post错误
     if (err) {
-      ctx.throw(500, err);
       // 事务回滚
       commentModel.rollback();
+      ctx.throw(500, err);
       return
     }
 
     // 没找到post
     if (!findPost) {
-      ctx.throw(500, '文章不存在');
       // 事务回滚
       commentModel.rollback();
+      ctx.throw(500, '文章不存在');
       return
     }
 
@@ -141,9 +141,9 @@ class CommentController {
 
     // 更新失败，回滚事务，返回错误信息
     if (err) {
-      ctx.throw(500, err);
       // 事务回滚
       commentModel.rollback();
+      ctx.throw(500, err);
       return
     }
 
@@ -158,19 +158,19 @@ class CommentController {
 
     // 查找user错误
     if (err) {
-      ctx.throw(500, err);
       // 事务回滚
       commentModel.rollback();
       userModel.rollback();
+      ctx.throw(500, err);
       return
     }
 
     // 没找到user
     if (!findUser) {
-      ctx.throw(500, '用户不存在');
       // 事务回滚
       commentModel.rollback();
       userModel.rollback();
+      ctx.throw(500, '用户不存在');
       return
     }
 
@@ -190,10 +190,10 @@ class CommentController {
 
     // 更新失败，回滚事务，返回错误信息
     if (err) {
-      ctx.throw(500, err);
       // 事务回滚
       commentModel.rollback();
       userModel.rollback();
+      ctx.throw(500, err);
       return
     }
 
