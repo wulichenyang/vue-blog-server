@@ -322,6 +322,11 @@ class CommentController {
       }
     }))
 
+    // 查找失败，返回错误信息
+    if (err) {
+      ctx.throw(500, err);
+    }
+
     // populate Post 数据
     let populateOptions = [{
       path: 'postId',
@@ -341,17 +346,10 @@ class CommentController {
     // 查找失败，返回错误信息
     if (err) {
       ctx.throw(500, err);
-    }
-
-    console.log(commentListRes)
-
-    // 查找失败，返回错误信息
-    if (err) {
-      ctx.throw(500, err);
       return
     }
 
-    // 如果登录，对每条comment，每条reply查找是否点赞
+    // 如果登录，对每条comment查找是否点赞
     if (userId) {
       // comments 点赞
       let commentIds = commentListRes.map(comment => comment._id);
@@ -365,24 +363,6 @@ class CommentController {
             "$in": commentIds
           },
         }
-      }))
-
-      // 查找失败，返回错误信息
-      if (err) {
-        ctx.throw(500, err);
-        return
-      }
-
-      let populateOptions = {
-        path: 'author',
-        model: 'User',
-        select: userBriefSelect,
-      };
-
-      // populate 用户数据
-      [err, commentListRes] = await To(commentModel.populate({
-        collections: commentListRes,
-        options: populateOptions
       }))
 
       // 查找失败，返回错误信息
