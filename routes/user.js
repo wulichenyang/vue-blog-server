@@ -30,6 +30,7 @@ router.get('/signout', userAuth, onError, UserController.signOut)
 router.get('/admin/users', adminAuth, onError, UserController.getUserList)
 
 // 获取某用户简略信息
+// /users/:id?fromUser=
 router.get('/users/:id', onError, UserController.getOtherUserDetail)
 
 // 获取某用户详细信息

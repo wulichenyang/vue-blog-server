@@ -1,6 +1,7 @@
 let userModel = require('../models/user');
 let phoneModel = require('../models/phone');
 let emailModel = require('../models/email');
+let followModel = require('../models/follow');
 const {
   userDetailSelect,
   otherUserDetailSelect
@@ -692,7 +693,7 @@ class UserController {
    * @return {Promise.<void>}
    */
   static async getUserSelf(ctx, next) {
-    await UserController.getUserById(ctx, next, ctx.userId, userDetailSelect, true)
+    await UserController.getUserById(ctx, next, ctx.userId, userDetailSelect, true, false)
   }
 
   /**
@@ -703,10 +704,17 @@ class UserController {
    * @return {Promise.<void>}
    */
   static async getOtherUserDetail(ctx, next) {
+    // targetUserId
     let {
       id
     } = ctx.params;
-    await UserController.getUserById(ctx, next, id, otherUserDetailSelect, false)
+    
+    // 获取登录用户（登录会返回ifFollow）
+    const {
+      fromUserId
+    } = ctx.request.query;
+
+    await UserController.getUserById(ctx, next, id, otherUserDetailSelect, false, true, fromUserId)
   }
 
   /**
@@ -717,10 +725,11 @@ class UserController {
    * @return {Promise.<void>}
    */
   static async getUserDetail(ctx, next) {
+    // targetUserId
     let {
       id
     } = ctx.params;
-    await UserController.getUserById(ctx, next, id, userDetailSelect, true)
+    await UserController.getUserById(ctx, next, id, userDetailSelect, true, false)
   }
 
   /**
@@ -728,12 +737,14 @@ class UserController {
    * 
    * @param ctx
    * @param next
-   * @param {ObjectId} userId
+   * @param {ObjectId} userId 对象用户id
    * @param {object} select 返回属性
    * @param {object} isDetail 是否返回详细信息（包括手机、邮箱）
+   * @param {object} ifFollow 是否返回关注用户信息
+   * @param {object} fromUserId 登录用户
    * @return {Promise.<void>}
    */
-  static async getUserById(ctx, next, userId, select, isDetail) {
+  static async getUserById(ctx, next, userId, select, isDetail, ifFollow, fromUserId) {
     let err, findUser;
     [err, findUser] = await To(userModel.findOne({
       query: {
@@ -792,6 +803,43 @@ class UserController {
         // 找到 email，加入用户信息
         findUser.email = findEmail.email
       }
+    }
+
+    // 是否返回关注用户信息
+    if(ifFollow) {
+
+      // 用户未登录
+      if(!fromUserId) {
+        findUser.ifFollow = false
+      }
+
+      // 查找 follow 信息
+      let findFollow;
+      [err, findFollow] = await To(followModel.findOne({
+        query: {
+          userId: fromUserId,
+          type: 'user',
+          targetId: userId
+        }
+      }))
+
+      // 查找错误，返回错误信息
+      if (err) {
+        ctx.throw(500, err);
+        return
+      }
+
+      // 已关注 follow
+      if (findFollow) {
+        
+        // 找到 follow
+        findUser.ifFollow = true
+      } else {
+
+        // 未关注
+        findUser.ifFollow = false
+      }
+
     }
 
     // 返回用户信息

@@ -176,8 +176,7 @@ class FollowController {
     // 找到并且修改关注对象followCount
     // 更新target下和followCount
     let targetRes;
-    let newFollowCount = follow.type === 'user' ? findTarget.fansCount + 1 : findTarget.followCount + 1;
-
+    let newFollowCount = type === 'user' ? findTarget.fansCount + 1 : findTarget.followCount + 1;
 
     switch (type) {
       case 'post':
@@ -310,14 +309,15 @@ class FollowController {
 
     // 找到并且修改发起关注所属用户的followXXCount和folowXX
     let userRes;
+    let newFollowIds;
 
     switch (type) {
       case 'post':
-        let newFollowCount = findUser.followPostCount + 1;
-        let newFollowIds = [
+        newFollowCount = findUser.followPostCount + 1;
+        newFollowIds = [
           ...findUser.followPost,
           targetId
-        ]
+        ];
 
 
         [err, userRes] = await To(userModel.update({
@@ -343,11 +343,11 @@ class FollowController {
         break;
 
       case 'category':
-        let newFollowCount = findUser.followCategoryCount + 1;
-        let newFollowIds = [
+        newFollowCount = findUser.followCategoryCount + 1;
+        newFollowIds = [
           ...findUser.followCategory,
           targetId
-        ]
+        ];
 
         [err, userRes] = await To(userModel.update({
           query: {
@@ -373,11 +373,12 @@ class FollowController {
         break;
 
       case 'user':
-        let newFollowCount = findUser.followPeopleCount + 1;
-        let newFollowIds = [
+        newFollowCount = findUser.followPeopleCount + 1;
+        newFollowIds = [
           ...findUser.followPeople,
           targetId
-        ]
+        ];
+
         [err, userRes] = await To(userModel.update({
           query: {
             _id: userId
@@ -387,7 +388,7 @@ class FollowController {
             followPeopleCount: newFollowCount,
           }
         }))
-
+        
         // 更新失败，回滚事务，返回错误信息
         if (err) {
           // 事务回滚
@@ -660,11 +661,12 @@ class FollowController {
 
     // 找到并且修改发起关注所属用户的followXXCount和folowXX
     let userRes;
+    let newFollowIds;
 
     switch (follow.type) {
       case 'post':
-        let newFollowCount = findUser.followPostCount - 1;
-        let newFollowIds = findUser.followPost.filter(postId => postId !== follow.targetId);
+        newFollowCount = findUser.followPostCount - 1;
+        newFollowIds = findUser.followPost.filter(postId => postId !== follow.targetId);
 
         [err, userRes] = await To(userModel.update({
           query: {
@@ -689,8 +691,8 @@ class FollowController {
         break;
 
       case 'category':
-        let newFollowCount = findUser.followCategoryCount - 1;
-        let newFollowIds = findUser.followCategory.filter(categoryId => categoryId !== follow.targetId);
+        newFollowCount = findUser.followCategoryCount - 1;
+        newFollowIds = findUser.followCategory.filter(categoryId => categoryId !== follow.targetId);
 
         [err, userRes] = await To(userModel.update({
           query: {
@@ -716,8 +718,8 @@ class FollowController {
         break;
 
       case 'user':
-        let newFollowCount = findUser.followPeopleCount - 1;
-        let newFollowIds = findUser.followPeople.filter(peopleId => peopleId !== follow.targetId);
+        newFollowCount = findUser.followPeopleCount - 1;
+        newFollowIds = findUser.followPeople.filter(peopleId => peopleId !== follow.targetId);
 
         [err, userRes] = await To(userModel.update({
           query: {
