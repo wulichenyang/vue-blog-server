@@ -68,6 +68,18 @@ exports.userBriefSelect = {
   'nickname': 1,
 }
 
+exports.fansFollowSelect = {
+  '_id': 1,
+  'userId': 1,
+}
+
+exports.userFansSelect = {
+  '_id': 1,
+  'avatar': 1,
+  'nickname': 1,
+  'brief': 1,
+}
+
 exports.categoryBriefSelect = {
   '_id': 1,
   'name': 1

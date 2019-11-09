@@ -14,7 +14,8 @@ const {
   checkFollow
 } = require('../utils/validate');
 const {
-
+  fansFollowSelect,
+  userFansSelect
 } = require('../config/select')
 
 class FollowController {
@@ -388,7 +389,7 @@ class FollowController {
             followPeopleCount: newFollowCount,
           }
         }))
-        
+
         // 更新失败，回滚事务，返回错误信息
         if (err) {
           // 事务回滚
@@ -764,6 +765,106 @@ class FollowController {
     successRes({
       ctx,
       message: '删除关注成功'
+    })
+    return
+  }
+
+  /**
+   * 获取某用户的所有粉丝列表
+   * 
+   * @param ctx
+   * @param next
+   * @return {Promise.<void>}
+   */
+  static async getFansByUser(ctx, next) {
+    // 被查看用户id
+    const {
+      id
+    } = ctx.params;
+
+    // 登录用户id
+    const {
+      userId
+    } = ctx.request.query;
+
+
+    // 根据targetUserId过滤查找所有的关注者
+    let err, fans;
+    [err, fans] = await To(followModel.find({
+      query: {
+        type: 'user',
+        targetId: id,
+      },
+      select: fansFollowSelect,
+      options: {
+        sort: {
+          createdAt: -1
+        }
+      }
+    }))
+
+    // 查找失败，返回错误信息
+    if (err) {
+      ctx.throw(500, err);
+    }
+
+    // populate Fans 具体数据
+    let populateOptions = [{
+      path: 'userId',
+      model: 'User',
+      select: userFansSelect,
+    }];
+
+    [err, fans] = await To(followModel.populate({
+      collections: fans,
+      options: populateOptions
+    }))
+
+    // 查找失败，返回错误信息
+    if (err) {
+      ctx.throw(500, err);
+      return
+    }
+
+    // 如果登录，则对每个关注者，查找是否关注
+    if (userId) {
+      let fanIds = fans.map(fan => fan._id);
+      let findFanArr;
+      [err, findFanArr] = await To(followModel.find({
+        query: {
+          userId,
+          type: 'user',
+          targetId: {
+            "$in": fanIds
+          },
+        }
+      }))
+
+      // 查找失败，返回错误信息
+      if (err) {
+        ctx.throw(500, err)
+        return
+      }
+
+      let fanMap = {};
+
+      findFanArr.forEach(fan => {
+        fanMap[fan.targetId] = true
+      })
+
+      fans = fans.map(fan => {
+        return {
+          ...fan,
+          ifFollow: fanMap[fan._id] ? true : false
+        }
+      })
+    }
+
+    // 查找成功返回数据
+    successRes({
+      ctx,
+      data: fans,
+      message: '获取 fans 成功'
     })
     return
   }

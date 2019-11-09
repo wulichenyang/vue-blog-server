@@ -16,6 +16,11 @@ const {
 // /follow/:id?type=user
 router.post('/follow/:id', userAuth, onError, FollowController.toggleFollow)
 
+// 某用户的所有关注者
+// /users/${id}/fans?userId=${loginUserId}
+router.get('/users/:id/fans', onError, FollowController.getFansByUser)
+
+
 // // （可选）获取点赞详细信息（用户编辑时使用）
 // router.get('/follow/:id', onError, FollowController.getFollow)
 
