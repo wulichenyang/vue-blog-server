@@ -828,7 +828,7 @@ class FollowController {
 
     // 如果登录，则对每个关注者，查找是否关注
     if (userId) {
-      let fanIds = fans.map(fan => fan._id);
+      let fanIds = fans.map(fan => fan.userId);
       let findFanArr;
       [err, findFanArr] = await To(followModel.find({
         query: {
@@ -851,11 +851,10 @@ class FollowController {
       findFanArr.forEach(fan => {
         fanMap[fan.targetId] = true
       })
-
       fans = fans.map(fan => {
         return {
           ...fan,
-          ifFollow: fanMap[fan._id] ? true : false
+          ifFollow: fanMap[fan.userId._id] ? true : false
         }
       })
     }
