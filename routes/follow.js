@@ -20,6 +20,10 @@ router.post('/follow/:id', userAuth, onError, FollowController.toggleFollow)
 // /users/${id}/fans?userId=${loginUserId}
 router.get('/users/:id/fans', onError, FollowController.getFansByUser)
 
+// 某用户所有关注的用户
+// /users/${id}/follows/users?userId=${loginUserId}
+router.get('/users/:id/follows/users', onError, FollowController.getFollowTargetUsersByUser)
+
 
 // // （可选）获取点赞详细信息（用户编辑时使用）
 // router.get('/follow/:id', onError, FollowController.getFollow)

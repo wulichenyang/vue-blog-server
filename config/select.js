@@ -71,6 +71,7 @@ exports.userBriefSelect = {
 exports.fansFollowSelect = {
   '_id': 1,
   'userId': 1,
+  'targetId': 1,
 }
 
 exports.userFansSelect = {

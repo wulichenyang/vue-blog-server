@@ -826,7 +826,7 @@ class FollowController {
       return
     }
 
-    // 如果登录，则对每个关注者，查找是否关注
+    // 如果登录，则对每个关注者，查找登录用户是否关注
     if (userId) {
       let fanIds = fans.map(fan => fan.userId);
       let findFanArr;
@@ -864,6 +864,106 @@ class FollowController {
       ctx,
       data: fans,
       message: '获取 fans 成功'
+    })
+    return
+  }
+
+  /**
+   * 获取某用户的关注的用户列表
+   * 
+   * @param ctx
+   * @param next
+   * @return {Promise.<void>}
+   */
+  static async getFollowTargetUsersByUser(ctx, next) {
+    // 被查看用户id
+    const {
+      id
+    } = ctx.params;
+
+    // 登录用户id
+    const {
+      userId
+    } = ctx.request.query;
+
+
+    // 根据userId过滤查找所有的关注者
+    let err, fans;
+    [err, fans] = await To(followModel.find({
+      query: {
+        type: 'user',
+        userId: id,
+      },
+      select: fansFollowSelect,
+      options: {
+        sort: {
+          createdAt: -1
+        }
+      }
+    }))
+
+    // 查找失败，返回错误信息
+    if (err) {
+      ctx.throw(500, err);
+    }
+
+    // populate 关注用户的具体数据
+    let populateOptions = [{
+      path: 'targetId',
+      model: 'User',
+      select: userFansSelect,
+    }];
+
+    [err, fans] = await To(followModel.populate({
+      collections: fans,
+      options: populateOptions
+    }))
+
+    console.log(fans)
+    // 查找失败，返回错误信息
+    if (err) {
+      ctx.throw(500, err);
+      return
+    }
+
+    // 如果登录，则对每个被关注者，查找登录用户是否关注
+    if (userId) {
+      let targetIds = fans.map(fan => fan.targetId);
+      let findFanArr;
+      [err, findFanArr] = await To(followModel.find({
+        query: {
+          userId,
+          type: 'user',
+          targetId: {
+            "$in": targetIds
+          },
+        }
+      }))
+
+      // 查找失败，返回错误信息
+      if (err) {
+        ctx.throw(500, err)
+        return
+      }
+
+      let fanMap = {};
+
+      findFanArr.forEach(fan => {
+        fanMap[fan.targetId] = true
+      })
+      fans = fans.map(fan => {
+        return {
+          ...fan,
+          ifFollow: fanMap[fan.targetId._id] ? true : false
+        }
+      })
+    }
+
+    // 查找成功返回数据
+    successRes({
+      ctx,
+      data: fans,
+      message: '获取 follow target users 成功'
     })
     return
   }
