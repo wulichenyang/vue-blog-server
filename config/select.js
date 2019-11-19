@@ -121,3 +121,14 @@ exports.replyDetailSelect = {
   createdAt: 1,
   updatedAt: 1
 }
+
+
+exports.categoryDetailSelect = {
+  _id: 1,
+  name: 1,
+  brief: 1,
+  avatar: 1,
+  followCount: 1,
+  postCount: 1,
+}
+

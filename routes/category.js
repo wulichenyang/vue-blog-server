@@ -16,7 +16,7 @@ router.post('/admin/categories', adminAuth, onError, CategoryController.addCateg
 router.delete('/admin/categories/:id', adminAuth, onError, CategoryController.deleteCategory)
 
 // 获取文章分类详细信息
-router.get('/categories/:id', onError, CategoryController.getCategory)
+router.get('/categories/:id', onError, CategoryController.getCategoryDetail)
 
 // 获取所有文章分类列表
 router.get('/categories', onError, CategoryController.getCategoryList)

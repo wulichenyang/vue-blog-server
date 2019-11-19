@@ -10,7 +10,9 @@ const {
   checkCategory,
   checkUpdateCategory
 } = require('../utils/validate');
-
+const {
+  categoryDetailSelect
+} = require('../config/select')
 class CategoryController {
 
   /**
@@ -126,14 +128,15 @@ class CategoryController {
    * @param next
    * @return {Promise.<void>}
    */
-  static async getCategory(ctx, next) {
+  static async getCategoryDetail(ctx, next) {
     const categoryId = ctx.params.id
 
     let err, findCategory;
     [err, findCategory] = await To(categoryModel.findOne({
       query: {
         _id: categoryId
-      }
+      },
+      select: categoryDetailSelect,
     }))
 
     if (err) {
