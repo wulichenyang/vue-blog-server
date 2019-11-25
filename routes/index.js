@@ -10,6 +10,7 @@ const comment = require('./comment')
 const reply = require('./reply')
 const like = require('./like')
 const follow = require('./follow')
+const search = require('./search')
 
 router.get('/', async (ctx, next) => {
   await ctx.render('index', {
@@ -46,6 +47,8 @@ const addRoutes = (rootRouter) => {
   rootRouter.use(ApiPrefix, like.routes(), like.allowedMethods())
 
   rootRouter.use(ApiPrefix, follow.routes(), follow.allowedMethods())
+
+  rootRouter.use(ApiPrefix, search.routes(), search.allowedMethods())
 }
 
 exports.addRoutes = addRoutes
