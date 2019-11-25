@@ -853,12 +853,30 @@ class FollowController {
       })
       fans = fans.map(fan => {
         return {
-          ...fan,
+          user: {
+            ...fan.userId
+          },
           ifFollow: fanMap[fan.userId._id] ? true : false
         }
       })
+      
+      // 查找成功返回数据
+      successRes({
+        ctx,
+        data: fans,
+        message: '获取 fans 成功'
+      })
+      return
     }
 
+    // 未登录的数据重新处理
+    fans = fans.map(fan => ({
+      ifFollow: false,
+      user: {
+        ...fan.userId
+      },
+    }))
+    
     // 查找成功返回数据
     successRes({
       ctx,
@@ -953,11 +971,30 @@ class FollowController {
       })
       fans = fans.map(fan => {
         return {
-          ...fan,
+          user: {
+            ...fan.targetId
+          },
           ifFollow: fanMap[fan.targetId._id] ? true : false
         }
       })
+
+      // 查找成功返回数据
+      successRes({
+        ctx,
+        data: fans,
+        message: '获取 follow target users 成功'
+      })
+      return
+
     }
+
+    // 未登录的数据重新处理
+    fans = fans.map(fan => ({
+      ifFollow: false,
+      user: {
+        ...fan.targetId
+      },
+    }))
 
     // 查找成功返回数据
     successRes({
