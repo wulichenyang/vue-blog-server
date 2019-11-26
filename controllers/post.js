@@ -4,6 +4,10 @@ let userModel = require('../models/user')
 let To = require('../utils/to');
 let likeModel = require('../models/like');
 let {
+  htmlToString,
+  abstractImagesFromHTML
+} = require('../utils/html2String')
+let {
   successRes
 } = require('../utils/response');
 const {
@@ -543,6 +547,13 @@ class PostController {
       ctx.throw(500, err);
     }
 
+    // content 中提取第一张图片，作为简介展示
+    // content 的标签去除显示纯文字，截取部分内容
+    postsRes = postsRes.map(post => ({
+      ...post,
+      firstPic: abstractImagesFromHTML(post.content)[0] || null,
+      content: htmlToString(post.content).slice(0, 100) + '...'
+    }))
     // let populateOptions = postBriefPopulateOptions;
     // {
     //   //TODO:
@@ -656,6 +667,14 @@ class PostController {
     if (err) {
       ctx.throw(500, err);
     }
+
+    // content 中提取第一张图片，作为简介展示
+    // content 的标签去除显示纯文字，截取部分内容
+    userPostList = userPostList.map(post => ({
+      ...post,
+      firstPic: abstractImagesFromHTML(post.content)[0] || null,
+      content: htmlToString(post.content).slice(0, 100) + '...'
+    }))
 
     // populate category和用户数据
     let postBriefList;

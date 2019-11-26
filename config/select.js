@@ -45,6 +45,7 @@ const postBriefSelect = {
   author: 1,
   category: 1,
   title: 1,
+  content: 1,
   viewCount: 1,
   likeCount: 1,
   commentCount: 1,

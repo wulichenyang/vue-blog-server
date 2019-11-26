@@ -24,6 +24,10 @@ const {
 const {
   checkPost
 } = require('../utils/validate');
+let {
+  htmlToString,
+  abstractImagesFromHTML
+} = require('../utils/html2String')
 
 class SearchController {
 
@@ -62,8 +66,16 @@ class SearchController {
         }
       }
     }))
-    console.log(postsRes)
-    
+
+    // content 中提取第一张图片，作为简介展示
+    // content 的标签去除显示纯文字，截取部分内容
+    postsRes = postsRes.map(post => ({
+      ...post,
+      firstPic: abstractImagesFromHTML(post.content)[0] || null,
+      content: htmlToString(post.content).slice(0, 100) + '...'
+    }))
+
+
     // 查找失败，返回错误信息
     if (err) {
       ctx.throw(500, err);
