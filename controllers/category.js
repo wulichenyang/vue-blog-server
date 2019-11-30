@@ -1,4 +1,6 @@
 let categoryModel = require('../models/category');
+let followModel = require('../models/follow');
+
 let To = require('../utils/to');
 let {
   successRes
@@ -13,6 +15,7 @@ const {
 const {
   categoryDetailSelect
 } = require('../config/select')
+
 class CategoryController {
 
   /**
@@ -129,7 +132,14 @@ class CategoryController {
    * @return {Promise.<void>}
    */
   static async getCategoryDetail(ctx, next) {
-    const categoryId = ctx.params.id
+    // 分类id
+    const categoryId = ctx.params.id;
+
+    // 登录用户id
+    const {
+      userId
+    } = ctx.request.query;
+
 
     let err, findCategory;
     [err, findCategory] = await To(categoryModel.findOne({
@@ -147,6 +157,47 @@ class CategoryController {
     if (!findCategory) {
       ctx.throw(500, '查找分类详细信息失败');
       return
+    }
+
+
+    
+    // 如果登录，则对该分类查找是否关注
+    if (userId) {
+      let findCategoryFollow;
+      [err, findCategoryFollow] = await To(followModel.findOne({
+        query: {
+          userId,
+          type: 'category',
+          targetId: categoryId,
+        }
+      }))
+
+      // 查找失败，返回错误信息
+      if (err) {
+        ctx.throw(500, err)
+        return
+      }
+
+      // 已关注
+      if(findCategoryFollow && findCategoryFollow._id) {
+        findCategory = {
+          ...findCategory,
+          ifFollow: true
+        }
+      } else {
+        // 未关注
+        findCategory = {
+          ...findCategory,
+          ifFollow: false
+        }
+      }
+
+    } else {
+      // 未登录返回未关注
+      findCategory = {
+        ...findCategory,
+        ifFollow: false
+      }
     }
 
     successRes({

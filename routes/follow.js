@@ -10,7 +10,7 @@ const {
 
 // router.prefix('/follow')
 
-// 添加/删除点赞
+// 添加/删除关注对象（文章、分类、用户）
 // /follow/:id?type=post
 // /follow/:id?type=category
 // /follow/:id?type=user
@@ -23,7 +23,6 @@ router.get('/users/:id/fans', onError, FollowController.getFansByUser)
 // 某用户所有关注的用户
 // /users/${id}/follows/users?userId=${loginUserId}
 router.get('/users/:id/follows/users', onError, FollowController.getFollowTargetUsersByUser)
-
 
 // // （可选）获取点赞详细信息（用户编辑时使用）
 // router.get('/follow/:id', onError, FollowController.getFollow)
