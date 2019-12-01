@@ -75,11 +75,26 @@ exports.fansFollowSelect = {
   'targetId': 1,
 }
 
+exports.categoryListFollowSelect = {
+  '_id': 1,
+  'userId': 1,
+  'targetId': 1,
+}
+
 exports.userFansSelect = {
   '_id': 1,
   'avatar': 1,
   'nickname': 1,
   'brief': 1,
+}
+
+exports.userCategoryListSelect = {
+  _id: 1,
+  name: 1,
+  brief: 1,
+  avatar: 1,
+  followCount: 1,
+  postCount: 1,
 }
 
 exports.categoryBriefSelect = {

@@ -24,6 +24,10 @@ router.get('/users/:id/fans', onError, FollowController.getFansByUser)
 // /users/${id}/follows/users?userId=${loginUserId}
 router.get('/users/:id/follows/users', onError, FollowController.getFollowTargetUsersByUser)
 
+// 某用户所有关注的分类
+// /users/${id}/follows/categories?userId=${loginUserId}
+router.get('/users/:id/follows/categories', onError, FollowController.getFollowTargetCategoryListByUser)
+
 // // （可选）获取点赞详细信息（用户编辑时使用）
 // router.get('/follow/:id', onError, FollowController.getFollow)
 

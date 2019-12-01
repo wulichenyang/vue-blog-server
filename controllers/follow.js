@@ -15,7 +15,9 @@ const {
 } = require('../utils/validate');
 const {
   fansFollowSelect,
-  userFansSelect
+  categoryListFollowSelect,
+  userFansSelect,
+  userCategoryListSelect,
 } = require('../config/select')
 
 class FollowController {
@@ -859,7 +861,7 @@ class FollowController {
           ifFollow: fanMap[fan.userId._id] ? true : false
         }
       })
-      
+
       // 查找成功返回数据
       successRes({
         ctx,
@@ -876,7 +878,7 @@ class FollowController {
         ...fan.userId
       },
     }))
-    
+
     // 查找成功返回数据
     successRes({
       ctx,
@@ -1001,6 +1003,122 @@ class FollowController {
       ctx,
       data: fans,
       message: '获取 follow target users 成功'
+    })
+    return
+  }
+
+  /**
+   * 获取某用户的关注的分类列表
+   * 
+   * @param ctx
+   * @param next
+   * @return {Promise.<void>}
+   */
+  static async getFollowTargetCategoryListByUser(ctx, next) {
+    // 被查看用户id
+    const {
+      id
+    } = ctx.params;
+
+    // 登录用户id
+    const {
+      userId
+    } = ctx.request.query;
+
+
+    // 根据userId过滤查找所有关注的分类
+    let err, categoryList;
+    [err, categoryList] = await To(followModel.find({
+      query: {
+        type: 'category',
+        userId: id,
+      },
+      select: categoryListFollowSelect,
+      options: {
+        sort: {
+          createdAt: -1
+        }
+      }
+    }))
+
+    // 查找失败，返回错误信息
+    if (err) {
+      ctx.throw(500, err);
+    }
+
+    // populate 关注分类的具体数据
+    let populateOptions = [{
+      path: 'targetId',
+      model: 'Category',
+      select: userCategoryListSelect,
+    }];
+
+    [err, categoryList] = await To(followModel.populate({
+      collections: categoryList,
+      options: populateOptions
+    }))
+
+    console.log(categoryList)
+    // 查找失败，返回错误信息
+    if (err) {
+      ctx.throw(500, err);
+      return
+    }
+
+    // 如果登录，则对每个被关注分类，查找登录用户是否关注
+    if (userId) {
+      // categoryIds
+      let targetIds = categoryList.map(category => category.targetId);
+      let findCategoryArr;
+      [err, findCategoryArr] = await To(followModel.find({
+        query: {
+          userId,
+          type: 'category',
+          targetId: {
+            "$in": targetIds
+          },
+        }
+      }))
+
+      // 查找失败，返回错误信息
+      if (err) {
+        ctx.throw(500, err)
+        return
+      }
+
+      let categoryMap = {};
+
+      findCategoryArr.forEach(category => {
+        categoryMap[category.targetId] = true
+      })
+      categoryList = categoryList.map(category => {
+        return {
+          ...category.targetId,
+          ifFollow: categoryMap[category.targetId._id] ? true : false
+        }
+      })
+
+      // 查找成功返回数据
+      successRes({
+        ctx,
+        data: categoryList,
+        message: '获取 follow target category List 成功'
+      })
+      return
+
+    }
+
+    // 未登录的数据重新处理
+    categoryList = categoryList.map(category => ({
+      ...category.targetId,
+      ifFollow: false,
+    }))
+
+    // 查找成功返回数据
+    successRes({
+      ctx,
+      data: categoryList,
+      message: '获取 follow target category List 成功'
     })
     return
   }
