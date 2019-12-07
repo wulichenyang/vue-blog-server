@@ -159,8 +159,6 @@ class CategoryController {
       return
     }
 
-
-    
     // 如果登录，则对该分类查找是否关注
     if (userId) {
       let findCategoryFollow;
@@ -258,7 +256,7 @@ class CategoryController {
    * @return {Promise.<void>}
    */
   static async getFollowCategoryList(ctx, next) {
-
+    // 在 controllers/follow下
   }
 
   /**
@@ -271,7 +269,6 @@ class CategoryController {
   static async updateCategory(ctx, next) {
     // 获取修改对象id和修改属性
     const categoryId = ctx.params.id
-    console.log(ctx.params.id)
 
     // 获取修改的category信息
     const {

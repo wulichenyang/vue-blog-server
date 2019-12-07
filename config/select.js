@@ -64,28 +64,34 @@ exports.postDetailSelect = {
 }
 
 exports.userBriefSelect = {
-  '_id': 1,
-  'avatar': 1,
-  'nickname': 1,
+  _id: 1,
+  avatar: 1,
+  nickname: 1,
 }
 
 exports.fansFollowSelect = {
-  '_id': 1,
-  'userId': 1,
-  'targetId': 1,
+  _id: 1,
+  userId: 1,
+  targetId: 1,
 }
 
 exports.categoryListFollowSelect = {
-  '_id': 1,
-  'userId': 1,
-  'targetId': 1,
+  _id: 1,
+  userId: 1,
+  targetId: 1,
+}
+
+exports.postListFollowSelect = {
+  _id: 1,
+  userId: 1,
+  targetId: 1,
 }
 
 exports.userFansSelect = {
-  '_id': 1,
-  'avatar': 1,
-  'nickname': 1,
-  'brief': 1,
+  _id: 1,
+  avatar: 1,
+  nickname: 1,
+  brief: 1,
 }
 
 exports.userCategoryListSelect = {
@@ -97,9 +103,13 @@ exports.userCategoryListSelect = {
   postCount: 1,
 }
 
+exports.userPostListSelect = {
+  ...postBriefSelect
+}
+
 exports.categoryBriefSelect = {
-  '_id': 1,
-  'name': 1
+  _id: 1,
+  name: 1
 }
 
 const userCommentSelect = {

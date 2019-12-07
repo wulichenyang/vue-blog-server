@@ -142,7 +142,6 @@ class UserController {
       return
     }
 
-    console.log('findPhone', findPhone)
     // 手机号已被注册
     if (findPhone) {
       ctx.throw(500, '该手机号已被注册');
@@ -298,7 +297,6 @@ class UserController {
       return
     }
 
-    console.log('findEmail', findEmail)
     // 手机号已被注册
     if (findEmail) {
       ctx.throw(500, '该邮箱已被注册');
