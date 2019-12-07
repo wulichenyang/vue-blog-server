@@ -4,11 +4,17 @@ let categoryModel = require('../models/category');
 // let replyModel = require('../models/reply');
 let followModel = require('../models/follow');
 let userModel = require('../models/user');
+let likeModel = require('../models/like');
 
 let To = require('../utils/to');
 let {
   successRes
 } = require('../utils/response');
+
+let {
+  htmlToString,
+  abstractImagesFromHTML
+} = require('../utils/html2String')
 
 const {
   checkFollow
@@ -18,6 +24,10 @@ const {
   categoryListFollowSelect,
   userFansSelect,
   userCategoryListSelect,
+  postListFollowSelect,
+  userPostListSelect,
+  userBriefSelect,
+  categoryBriefSelect
 } = require('../config/select')
 
 class FollowController {
@@ -939,7 +949,6 @@ class FollowController {
       options: populateOptions
     }))
 
-    console.log(fans)
     // 查找失败，返回错误信息
     if (err) {
       ctx.throw(500, err);
@@ -1058,7 +1067,6 @@ class FollowController {
       options: populateOptions
     }))
 
-    console.log(categoryList)
     // 查找失败，返回错误信息
     if (err) {
       ctx.throw(500, err);
@@ -1119,6 +1127,138 @@ class FollowController {
       ctx,
       data: categoryList,
       message: '获取 follow target category List 成功'
+    })
+    return
+  }
+
+  /**
+   * 获取某用户的关注的文章列表
+   * 
+   * @param ctx
+   * @param next
+   * @return {Promise.<void>}
+   */
+  static async getFollowTargetPostListByUser(ctx, next) {
+    // 被查看用户id
+    const {
+      id
+    } = ctx.params;
+
+    // 登录用户id
+    const {
+      userId
+    } = ctx.request.query;
+
+    // 根据userId过滤查找所有关注的文章
+    let err, postList;
+    [err, postList] = await To(followModel.find({
+      query: {
+        type: 'post',
+        userId: id,
+      },
+      select: postListFollowSelect,
+      options: {
+        sort: {
+          createdAt: -1
+        }
+      }
+    }))
+
+    // 查找失败，返回错误信息
+    if (err) {
+      ctx.throw(500, err);
+    }
+
+    // populate 关注文章的具体数据
+    let populateOptions = [{
+      path: 'targetId',
+      model: 'Post',
+      select: userPostListSelect,
+      populate: [{
+          path: 'author',
+          model: 'User',
+          select: userBriefSelect,
+        },
+        {
+          path: 'category',
+          model: 'Category',
+          select: categoryBriefSelect,
+        },
+      ]
+    }];
+
+    [err, postList] = await To(followModel.populate({
+      collections: postList,
+      options: populateOptions
+    }))
+
+    // 查找失败，返回错误信息
+    if (err) {
+      ctx.throw(500, err);
+      return
+    }
+
+    // 如果登录，则对每篇被关注文章，查找是否点赞
+    if (userId) {
+      let postIds = postList.map(post => post.targetId._id);
+      let findLikeArr;
+      [err, findLikeArr] = await To(likeModel.find({
+        query: {
+          userId,
+          type: 'post',
+          targetId: {
+            "$in": postIds
+          },
+        }
+      }))
+      console.log(findLikeArr)
+
+      // 查找失败，返回错误信息
+      if (err) {
+        ctx.throw(500, err)
+        return
+      }
+
+      let likeMap = {};
+
+      findLikeArr.forEach(like => {
+        likeMap[like.targetId] = true
+      })
+      console.log(postList)
+      postList = postList.map(post => {
+        return {
+          ...post.targetId,
+          // content 中提取第一张图片，作为简介展示
+          // content 的标签去除显示纯文字，截取部分内容
+          firstPic: abstractImagesFromHTML(post.targetId.content)[0] || null,
+          content: htmlToString(post.targetId.content).slice(0, 100) + '...',
+          ifLike: likeMap[post.targetId._id] ? true : false
+        }
+      })
+
+      // 查找成功返回数据
+      successRes({
+        ctx,
+        data: postList,
+        message: '获取 follow target post List 成功'
+      })
+      return
+    }
+
+
+    // 未登录的数据重新处理
+    postList = postList.map(post => ({
+      ...post.targetId,
+      firstPic: abstractImagesFromHTML(post.targetId.content)[0] || null,
+      content: htmlToString(post.targetId.content).slice(0, 100) + '...',
+      ifLike: false,
+    }))
+
+    // 查找成功返回数据
+    successRes({
+      ctx,
+      data: postList,
+      message: '获取 follow target post List 成功'
     })
     return
   }

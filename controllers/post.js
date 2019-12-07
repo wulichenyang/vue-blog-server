@@ -1,5 +1,6 @@
 let postModel = require('../models/post');
 let categoryModel = require('../models/category')
+let followModel = require('../models/follow');
 let userModel = require('../models/user')
 let To = require('../utils/to');
 let likeModel = require('../models/like');
@@ -378,8 +379,8 @@ class PostController {
       ctx.throw(500, err);
     }
 
-    console.log(userId)
     // 如果登录，则对每条post，每条comment，每条reply查找是否点赞
+    // 如果登录，查找用户是否关注该文章
     if (userId) {
       // post点赞
       let postId = postDetail._id;
@@ -489,12 +490,47 @@ class PostController {
         })
       }
 
+      // 查找用户是否关注该分类
+      let findPostFollow;
+      [err, findPostFollow] = await To(followModel.findOne({
+        query: {
+          userId,
+          type: 'post',
+          targetId: postId,
+        }
+      }))
+
+      // 查找失败，返回错误信息
+      if (err) {
+        ctx.throw(500, err)
+        return
+      }
+
+      // 已关注
+      if(findPostFollow && findPostFollow._id) {
+        postDetail = {
+          ...postDetail,
+          ifFollow: true
+        }
+      } else {
+        // 未关注
+        postDetail = {
+          ...postDetail,
+          ifFollow: false
+        }
+      }
+    } else {
+      // 未登录返回未关注
+      postDetail = {
+        ...postDetail,
+        ifFollow: false
+      }
     }
 
     successRes({
       ctx,
       data: postDetail,
-      message: '获取postDetail成功'
+      message: '获取 postDetail 成功'
     })
     return
   }
@@ -690,7 +726,6 @@ class PostController {
 
     // 如果登录，则对每条post，查找是否点赞
     if (userId) {
-      console.log(userId)
       let postIds = postBriefList.map(post => post._id);
       let findLikeArr;
       [err, findLikeArr] = await To(likeModel.find({
