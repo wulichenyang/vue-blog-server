@@ -21,6 +21,7 @@ const {
   checkNickname,
   checkPwd,
   checkUserUpdateObj,
+  checkUserSetting
 } = require('../utils/validate');
 const {
   genToken
@@ -695,6 +696,90 @@ class UserController {
   }
 
   /**
+   * 修改用户自身设置信息
+   * 
+   * @param ctx
+   * @param next
+   * @return {Promise.<void>}
+   */
+  static async updateUserSelfSetting(ctx, next) {
+    // 获取用户id
+    const userId = ctx.userId;
+
+    // 获取修改的用户设置信息
+    const {
+      nickname,
+      brief,
+      birth,
+      gender
+    } = ctx.request.body;
+
+    // 检查category格式
+    let err, isOk;
+    [err, isOk] = checkUserSetting({
+      nickname,
+      brief,
+      birth,
+      gender,
+    })
+
+    // 检测错误，返回错误信息
+    if (!isOk) {
+      ctx.throw(500, err);
+      return
+    }
+
+    // 检查用户名是否重复
+    // 修改属性
+    let findUser;
+    [err, findUser] = await To(userModel.findOne({
+      query: {
+        nickname: nickname,
+      },
+    }))
+
+    // 查找失败，返回错误信息
+    if (err) {
+      ctx.throw(500, err);
+      return
+    }
+
+    // 用户名重复
+    if(findUser && findUser._id !== userId) {
+      ctx.throw(500, '该昵称已被占用');
+      return
+    }
+
+    // 修改属性
+    let res;
+    [err, res] = await To(userModel.update({
+      query: {
+        _id: userId,
+      },
+      update: {
+        nickname,
+        brief,
+        birth,
+        gender,
+      }
+    }))
+
+    // 修改失败，返回错误信息
+    if (err) {
+      ctx.throw(500, err);
+      return
+    }
+
+    // 修改成功，返回成功信息
+    successRes({
+      ctx,
+      message: '修改用户设置信息成功'
+    })
+    return
+  }
+
+
+  /**
    * 获取某用户详细信息
    * 
    * @param ctx
@@ -706,7 +791,7 @@ class UserController {
     let {
       id
     } = ctx.params;
-    
+
     // 获取登录用户（登录会返回ifFollow）
     const {
       fromUserId
@@ -804,10 +889,10 @@ class UserController {
     }
 
     // 是否返回关注用户信息
-    if(ifFollow) {
+    if (ifFollow) {
 
       // 用户未登录
-      if(!fromUserId) {
+      if (!fromUserId) {
         findUser.ifFollow = false
       }
 
@@ -829,7 +914,7 @@ class UserController {
 
       // 已关注 follow
       if (findFollow) {
-        
+
         // 找到 follow
         findUser.ifFollow = true
       } else {

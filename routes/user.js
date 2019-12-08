@@ -39,6 +39,9 @@ router.get('/admin/users/detail/:id', adminAuth, onError, UserController.getUser
 // 获取用户自身详细信息
 router.get('/userself', userAuth, onError, UserController.getUserSelf)
 
+// 更新用户自身设置信息
+router.put('/setting', userAuth, onError, UserController.updateUserSelfSetting)
+
 // 删除用户 TODO:
 router.delete('/admin/users/:id', adminAuth, onError, UserController.deleteUser)
 
