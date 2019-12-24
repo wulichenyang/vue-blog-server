@@ -71,7 +71,7 @@ module.exports = {
    * @param {object} userSettingInfo 用户设置信息对象
    * @return {[string, boolean]} [错误信息，验证通过与否]
    */
-  checkUserSetting: ({nickname, brief, birth, gender}) => {
+  checkUserSetting: ({avatar, nickname, brief, birth, gender}) => {
     // if(err){
     //   return ['err info', false]
     // }
@@ -159,13 +159,27 @@ module.exports = {
   /**
    * 检查更新用户对象格式
    * 
-   * @param {object} reply 回复对象
+   * @param {object} userInfo 更新用户信息
    * @return {[string, boolean]} [错误信息，验证通过与否]
    */
   checkUserUpdateObj: ({nickname, realname, role, gender, birth,  avatar, brief,  postCount, fansCount, likeCount, followPeople, followPeopleCount, followCategory, followCategoryCount, followPost, followPostCount, collectPost, collectPostCount, password}) => {
     // if(err){
     //   return ['err info', false]
     // }
+    return ['', true]
+  },
+
+  /**
+   * 检查更新用户新旧密码
+   * 
+   * @param {object} passwordObject 新旧密码对象
+   * @return {[string, boolean]} [错误信息，验证通过与否]
+   */
+  checkUserUpdatePwd: ({oldPassword, newPassword}) => {
+    if(oldPassword === newPassword){
+      return ['新旧密码相同，修改失败', false]
+    }
+    // TODO
     return ['', true]
   },
 }

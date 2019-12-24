@@ -21,7 +21,8 @@ const {
   checkNickname,
   checkPwd,
   checkUserUpdateObj,
-  checkUserSetting
+  checkUserSetting,
+  checkUserUpdatePwd
 } = require('../utils/validate');
 const {
   genToken
@@ -708,15 +709,17 @@ class UserController {
 
     // 获取修改的用户设置信息
     const {
+      avatar,
       nickname,
       brief,
       birth,
       gender
     } = ctx.request.body;
 
-    // 检查category格式
+    // 检查信息格式
     let err, isOk;
     [err, isOk] = checkUserSetting({
+      avatar,
       nickname,
       brief,
       birth,
@@ -745,7 +748,7 @@ class UserController {
     }
 
     // 用户名重复
-    if(findUser && findUser._id !== userId) {
+    if (findUser && findUser._id !== userId) {
       ctx.throw(500, '该昵称已被占用');
       return
     }
@@ -757,6 +760,7 @@ class UserController {
         _id: userId,
       },
       update: {
+        avatar,
         nickname,
         brief,
         birth,
@@ -1026,6 +1030,60 @@ class UserController {
    * @return {Promise.<void>}
    */
   static async resetPwd(ctx, next) {
+    // 获取修改信息
+    let {
+      oldPassword,
+      newPassword
+    } = ctx.request.body
+
+    // 获取用户id
+    const userId = ctx.userId;
+
+    // 非对称加密，后端利用私钥解密，检测后再加密存储到DB
+    oldPassword = parsePwd(ctx, oldPassword);
+    newPassword = parsePwd(ctx, newPassword);
+
+    // 检查信息格式
+    let err, isOk;
+    [err, isOk] = checkUserUpdatePwd({
+      oldPassword,
+      newPassword
+    })
+
+    // 检测错误，返回错误信息
+    if (!isOk) {
+      ctx.throw(500, err);
+      return
+    }
+
+    // 二次加密对比数据库
+    oldPassword = encryptPwd(oldPassword);
+    newPassword = encryptPwd(newPassword);
+
+    // 修改属性
+    let findUser;
+    [err, findUser] = await To(userModel.findOne({
+      query: {
+        _id: userId,
+      },
+    }))
+
+    // 查找失败，返回错误信息
+    if (err) {
+      ctx.throw(500, err);
+      return
+    }
+
+    // 旧密码不对
+    if (findUser && findUser.password !== oldPassword) {
+      ctx.throw(500, '旧密码错误');
+      return
+    }
+
+    // 修改密码
+    await UserController.updateUserDetailById(ctx, next, userId, {
+      password: newPassword
+    })
 
   }
 

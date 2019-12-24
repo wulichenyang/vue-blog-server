@@ -49,6 +49,6 @@ router.delete('/admin/users/:id', adminAuth, onError, UserController.deleteUser)
 router.put('/userself', userAuth, onError, UserController.updateUserSelf)
 
 // 重置密码 TODO:
-router.put('/resetPwd', userAuth, onError, UserController.resetPwd)
+router.put('/password', userAuth, onError, UserController.resetPwd)
 
 module.exports = router
