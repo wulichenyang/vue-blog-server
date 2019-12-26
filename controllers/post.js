@@ -507,7 +507,7 @@ class PostController {
       }
 
       // 已关注
-      if(findPostFollow && findPostFollow._id) {
+      if (findPostFollow && findPostFollow._id) {
         postDetail = {
           ...postDetail,
           ifFollow: true
@@ -554,10 +554,17 @@ class PostController {
    * @return {Promise.<void>}
    */
   static async getPostListByCategory(ctx, next) {
+    const limit = 3;
+
     // 获取categoryID
     const {
       id
     } = ctx.params;
+
+    // 获取分页数据
+    const {
+      page,
+    } = ctx.request.query;
 
     // 获取登录用户（登录会返回ifLike）
     const {
@@ -574,13 +581,28 @@ class PostController {
       options: {
         sort: {
           createdAt: -1
-        }
+        },
+        skip: page * limit,
+        limit: limit
       }
     }))
 
     // 查找失败，返回错误信息
     if (err) {
       ctx.throw(500, err);
+    }
+
+    // 已加载完所有内容
+    if (postsRes.length === 0) {
+      successRes({
+        ctx,
+        data: {
+          postBriefList: [],
+          noMore: true
+        },
+        message: '加载完毕所有postList'
+      })
+      return
     }
 
     // content 中提取第一张图片，作为简介展示
@@ -661,7 +683,10 @@ class PostController {
     // 查找成功返回数据
     successRes({
       ctx,
-      data: postBriefList,
+      data: {
+        postBriefList,
+        noMore: false
+      },
       message: '获取postBriefList成功'
     })
     return
