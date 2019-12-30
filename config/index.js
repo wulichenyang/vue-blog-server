@@ -14,5 +14,7 @@ module.exports = {
     signed: true, //签名默认true
     rolling: false, //在每次请求时强行设置cookie，这将重置cookie过期时间（默认：false）
     renew: false, //(boolean) renew session when session is nearly expired,
-  }
+  },
+
+  limit: 3 // 每页显示数目
 }

@@ -20,6 +20,9 @@ const {
   replyDetailSelect,
 } = require('../config/select')
 const {
+  limit
+} = require('../config')
+const {
   postBriefPopulateOptions
 } = require('../config/populateOption')
 const {
@@ -554,7 +557,6 @@ class PostController {
    * @return {Promise.<void>}
    */
   static async getPostListByCategory(ctx, next) {
-    const limit = 3;
 
     // 获取categoryID
     const {
@@ -705,6 +707,11 @@ class PostController {
       id
     } = ctx.params;
 
+        // 获取分页数据
+        const {
+          page,
+        } = ctx.request.query;
+        
     // 获取用户（登录会返回ifLike）
     const {
       userId
@@ -720,7 +727,9 @@ class PostController {
       options: {
         sort: {
           createdAt: -1
-        }
+        },
+        skip: page * limit,
+        limit: limit
       }
     }))
 
@@ -729,6 +738,18 @@ class PostController {
       ctx.throw(500, err);
     }
 
+    // 已加载完所有内容
+    if (userPostList.length === 0) {
+      successRes({
+        ctx,
+        data: {
+          postBriefList: [],
+          noMore: true
+        },
+        message: '加载完毕所有postList'
+      })
+      return
+    }
     // content 中提取第一张图片，作为简介展示
     // content 的标签去除显示纯文字，截取部分内容
     userPostList = userPostList.map(post => ({
@@ -786,7 +807,10 @@ class PostController {
     // 查找成功返回数据
     successRes({
       ctx,
-      data: postBriefList,
+      data: {
+        postBriefList,
+        noMore: false
+      },
       message: '获取userPosts成功'
     })
     return
