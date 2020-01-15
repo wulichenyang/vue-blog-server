@@ -29,6 +29,7 @@ const {
   userBriefSelect,
   categoryBriefSelect
 } = require('../config/select')
+const Tx = require('../utils/transaction')
 
 class FollowController {
 
@@ -97,8 +98,14 @@ class FollowController {
 
     // 未找到则是添加关注
     // 开启事务
+    let followTx = new Tx();
+    let userTx = new Tx();
+    let postTx = new Tx();
+    let categoryTx = new Tx();
+
     let txErr, isTxOk;
-    [txErr, isTxOk] = await followModel.startTransaction()
+
+    [txErr, isTxOk] = await followTx.startTransaction()
 
     // 事务开启冲突
     if (!isTxOk) {
@@ -110,7 +117,7 @@ class FollowController {
 
     // 开启事务
     let userTxErr, isUserTxOk;
-    [userTxErr, isUserTxOk] = await userModel.startTransaction()
+    [userTxErr, isUserTxOk] = await userTx.startTransaction()
 
     // 事务开启冲突
     if (!isUserTxOk) {
@@ -133,7 +140,7 @@ class FollowController {
     // 插入失败，返回错误信息
     if (err) {
       // 事务回滚
-      followModel.rollback();
+      followTx.rollback();
       ctx.throw(500, err);
       return
     }
@@ -165,7 +172,7 @@ class FollowController {
 
       default:
         // 事务回滚
-        followModel.rollback();
+        followTx.rollback();
         ctx.throw(500, "关注类型错误");
         return;
         break;
@@ -173,7 +180,7 @@ class FollowController {
 
     if (err) {
       // 事务回滚
-      followModel.rollback();
+      followTx.rollback();
       ctx.throw(500, err);
       return
     }
@@ -181,7 +188,7 @@ class FollowController {
     // 没找到target
     if (!findTarget) {
       // 事务回滚
-      followModel.rollback();
+      followTx.rollback();
       ctx.throw(500, '关注对象不存在');
       return
     }
@@ -197,12 +204,12 @@ class FollowController {
         // 开启事务
         let postTxErr, isPostTxOk;
 
-        [postTxErr, isPostTxOk] = await postModel.startTransaction()
+        [postTxErr, isPostTxOk] = await postTx.startTransaction()
 
         // 事务开启冲突
         if (!isPostTxOk) {
           // 事务回滚
-          followModel.rollback();
+          followTx.rollback();
           // 返回错误信息
           ctx.throw(500, postTxErr);
           return
@@ -220,8 +227,8 @@ class FollowController {
         // 更新失败，回滚事务，返回错误信息
         if (err) {
           // 事务回滚
-          followModel.rollback();
-          postModel.rollback();
+          followTx.rollback();
+          postTx.rollback();
           ctx.throw(500, err);
           return
         }
@@ -230,12 +237,12 @@ class FollowController {
         // 开启事务
         let categoryTxErr, isCategoryTxOk;
 
-        [categoryTxErr, isCategoryTxOk] = await categoryModel.startTransaction()
+        [categoryTxErr, isCategoryTxOk] = await categoryTx.startTransaction()
 
         // 事务开启冲突
         if (!isCategoryTxOk) {
           // 事务回滚
-          followModel.rollback();
+          followTx.rollback();
           // 返回错误信息
           ctx.throw(500, categoryTxErr);
           return
@@ -253,8 +260,8 @@ class FollowController {
         // 更新失败，回滚事务，返回错误信息
         if (err) {
           // 事务回滚
-          followModel.rollback();
-          categoryModel.rollback();
+          followTx.rollback();
+          categoryTx.rollback();
           ctx.throw(500, err);
           return
         }
@@ -273,8 +280,8 @@ class FollowController {
         // 更新失败，回滚事务，返回错误信息
         if (err) {
           // 事务回滚
-          followModel.rollback();
-          userModel.rollback();
+          followTx.rollback();
+          userTx.rollback();
           ctx.throw(500, err);
           return
         }
@@ -282,10 +289,10 @@ class FollowController {
         break;
 
       default:
-        followModel.rollback();
-        userModel.rollback();
-        postModel.rollback();
-        categoryModel.rollback();
+        followTx.rollback();
+        userTx.rollback();
+        postTx.rollback();
+        categoryTx.rollback();
         ctx.throw(500, "关注类型错误");
         return;
         break;
@@ -301,10 +308,10 @@ class FollowController {
 
     if (err) {
       // 事务回滚
-      followModel.rollback();
-      userModel.rollback();
-      postModel.rollback();
-      categoryModel.rollback();
+      followTx.rollback();
+      userTx.rollback();
+      postTx.rollback();
+      categoryTx.rollback();
       ctx.throw(500, err);
       return
     }
@@ -312,10 +319,10 @@ class FollowController {
     // 没找到target
     if (!findUser) {
       // 事务回滚
-      followModel.rollback();
-      userModel.rollback();
-      postModel.rollback();
-      categoryModel.rollback();
+      followTx.rollback();
+      userTx.rollback();
+      postTx.rollback();
+      categoryTx.rollback();
       ctx.throw(500, '发起关注的用户不存在');
       return
     }
@@ -346,10 +353,10 @@ class FollowController {
         // 更新失败，回滚事务，返回错误信息
         if (err) {
           // 事务回滚
-          followModel.rollback();
-          userModel.rollback();
-          postModel.rollback();
-          categoryModel.rollback();
+          followTx.rollback();
+          userTx.rollback();
+          postTx.rollback();
+          categoryTx.rollback();
           ctx.throw(500, err);
           return
         }
@@ -375,10 +382,10 @@ class FollowController {
         // 更新失败，回滚事务，返回错误信息
         if (err) {
           // 事务回滚
-          followModel.rollback();
-          userModel.rollback();
-          postModel.rollback();
-          categoryModel.rollback();
+          followTx.rollback();
+          userTx.rollback();
+          postTx.rollback();
+          categoryTx.rollback();
           ctx.throw(500, err);
           return
         }
@@ -405,20 +412,20 @@ class FollowController {
         // 更新失败，回滚事务，返回错误信息
         if (err) {
           // 事务回滚
-          followModel.rollback();
-          userModel.rollback();
-          postModel.rollback();
-          categoryModel.rollback();
+          followTx.rollback();
+          userTx.rollback();
+          postTx.rollback();
+          categoryTx.rollback();
           ctx.throw(500, err);
           return
         }
         break;
 
       default:
-        followModel.rollback();
-        userModel.rollback();
-        postModel.rollback();
-        categoryModel.rollback();
+        followTx.rollback();
+        userTx.rollback();
+        postTx.rollback();
+        categoryTx.rollback();
         ctx.throw(500, "关注类型错误");
         return;
         break;
@@ -427,10 +434,10 @@ class FollowController {
     // TODO：推送消息
 
     // 关联操作成功，提交事务
-    followModel.endTransaction()
-    userModel.endTransaction()
-    postModel.endTransaction();
-    categoryModel.endTransaction();
+    followTx.endTransaction()
+    userTx.endTransaction()
+    postTx.endTransaction();
+    categoryTx.endTransaction();
 
     // 添加成功，返回成功信息
     successRes({
@@ -452,8 +459,13 @@ class FollowController {
    */
   static async deleteFollow(ctx, next, follow, userId) {
     // 开启事务
+    let followTx = new Tx();
+    let userTx = new Tx();
+    let postTx = new Tx();
+    let categoryTx = new Tx();
+
     let txErr, isTxOk;
-    [txErr, isTxOk] = await followModel.startTransaction()
+    [txErr, isTxOk] = await followTx.startTransaction()
 
     // 事务开启冲突
     if (!isTxOk) {
@@ -465,7 +477,7 @@ class FollowController {
 
     // 开启事务
     let userTxErr, isUserTxOk;
-    [userTxErr, isUserTxOk] = await userModel.startTransaction()
+    [userTxErr, isUserTxOk] = await userTx.startTransaction()
 
     // 事务开启冲突
     if (!isUserTxOk) {
@@ -486,7 +498,7 @@ class FollowController {
     // 删除失败，返回错误信息
     if (err) {
       // 事务回滚
-      followModel.rollback();
+      followTx.rollback();
       ctx.throw(500, err);
       return
     }
@@ -517,7 +529,7 @@ class FollowController {
         break;
       default:
         // 事务回滚
-        followModel.rollback();
+        followTx.rollback();
         ctx.throw(500, "关注类型错误");
         return;
         break;
@@ -525,7 +537,7 @@ class FollowController {
 
     if (err) {
       // 事务回滚
-      followModel.rollback();
+      followTx.rollback();
       ctx.throw(500, err);
       return
     }
@@ -533,7 +545,7 @@ class FollowController {
     // 没找到target
     if (!findTarget) {
       // 事务回滚
-      followModel.rollback();
+      followTx.rollback();
       ctx.throw(500, '关注对象不存在');
       return
     }
@@ -549,12 +561,12 @@ class FollowController {
         // 开启事务
         let postTxErr, isPostTxOk;
 
-        [postTxErr, isPostTxOk] = await postModel.startTransaction()
+        [postTxErr, isPostTxOk] = await postTx.startTransaction()
 
         // 事务开启冲突
         if (!isPostTxOk) {
           // 事务回滚
-          followModel.rollback();
+          followTx.rollback();
           // 返回错误信息
           ctx.throw(500, postTxErr);
           return
@@ -572,8 +584,8 @@ class FollowController {
         // 更新失败，回滚事务，返回错误信息
         if (err) {
           // 事务回滚
-          followModel.rollback();
-          postModel.rollback();
+          followTx.rollback();
+          postTx.rollback();
           ctx.throw(500, err);
           return
         }
@@ -582,12 +594,12 @@ class FollowController {
         // 开启事务
         let categoryTxErr, isCategoryTxOk;
 
-        [categoryTxErr, isCategoryTxOk] = await categoryModel.startTransaction()
+        [categoryTxErr, isCategoryTxOk] = await categoryTx.startTransaction()
 
         // 事务开启冲突
         if (!isCategoryTxOk) {
           // 事务回滚
-          followModel.rollback();
+          followTx.rollback();
           // 返回错误信息
           ctx.throw(500, categoryTxErr);
           return
@@ -605,8 +617,8 @@ class FollowController {
         // 更新失败，回滚事务，返回错误信息
         if (err) {
           // 事务回滚
-          followModel.rollback();
-          categoryModel.rollback();
+          followTx.rollback();
+          categoryTx.rollback();
           ctx.throw(500, err);
           return
         }
@@ -625,8 +637,8 @@ class FollowController {
         // 更新失败，回滚事务，返回错误信息
         if (err) {
           // 事务回滚
-          followModel.rollback();
-          userModel.rollback();
+          followTx.rollback();
+          userTx.rollback();
           ctx.throw(500, err);
           return
         }
@@ -634,10 +646,10 @@ class FollowController {
         break;
 
       default:
-        followModel.rollback();
-        userModel.rollback();
-        postModel.rollback();
-        categoryModel.rollback();
+        followTx.rollback();
+        userTx.rollback();
+        postTx.rollback();
+        categoryTx.rollback();
         ctx.throw(500, "关注类型错误");
         return;
         break;
@@ -653,10 +665,10 @@ class FollowController {
 
     if (err) {
       // 事务回滚
-      followModel.rollback();
-      userModel.rollback();
-      postModel.rollback();
-      categoryModel.rollback();
+      followTx.rollback();
+      userTx.rollback();
+      postTx.rollback();
+      categoryTx.rollback();
       ctx.throw(500, err);
       return
     }
@@ -664,10 +676,10 @@ class FollowController {
     // 没找到target
     if (!findUser) {
       // 事务回滚
-      followModel.rollback();
-      userModel.rollback();
-      postModel.rollback();
-      categoryModel.rollback();
+      followTx.rollback();
+      userTx.rollback();
+      postTx.rollback();
+      categoryTx.rollback();
       ctx.throw(500, '发起关注的用户不存在');
       return
     }
@@ -694,10 +706,10 @@ class FollowController {
         // 更新失败，回滚事务，返回错误信息
         if (err) {
           // 事务回滚
-          followModel.rollback();
-          userModel.rollback();
-          postModel.rollback();
-          categoryModel.rollback();
+          followTx.rollback();
+          userTx.rollback();
+          postTx.rollback();
+          categoryTx.rollback();
           ctx.throw(500, err);
           return
         }
@@ -720,10 +732,10 @@ class FollowController {
         // 更新失败，回滚事务，返回错误信息
         if (err) {
           // 事务回滚
-          followModel.rollback();
-          userModel.rollback();
-          postModel.rollback();
-          categoryModel.rollback();
+          followTx.rollback();
+          userTx.rollback();
+          postTx.rollback();
+          categoryTx.rollback();
           ctx.throw(500, err);
           return
         }
@@ -747,20 +759,20 @@ class FollowController {
         // 更新失败，回滚事务，返回错误信息
         if (err) {
           // 事务回滚
-          followModel.rollback();
-          userModel.rollback();
-          postModel.rollback();
-          categoryModel.rollback();
+          followTx.rollback();
+          userTx.rollback();
+          postTx.rollback();
+          categoryTx.rollback();
           ctx.throw(500, err);
           return
         }
         break;
 
       default:
-        followModel.rollback();
-        userModel.rollback();
-        postModel.rollback();
-        categoryModel.rollback();
+        followTx.rollback();
+        userTx.rollback();
+        postTx.rollback();
+        categoryTx.rollback();
         ctx.throw(500, "关注类型错误");
         return;
         break;
@@ -769,10 +781,10 @@ class FollowController {
     // TODO：推送消息
 
     // 关联操作成功，提交事务
-    followModel.endTransaction()
-    userModel.endTransaction()
-    postModel.endTransaction();
-    categoryModel.endTransaction();
+    followTx.endTransaction()
+    userTx.endTransaction()
+    postTx.endTransaction();
+    categoryTx.endTransaction();
 
     successRes({
       ctx,

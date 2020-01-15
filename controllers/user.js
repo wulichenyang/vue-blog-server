@@ -30,6 +30,7 @@ const {
 const {
   successRes
 } = require('../utils/response');
+const Tx = require('../utils/transaction')
 
 class UserController {
 
@@ -178,7 +179,9 @@ class UserController {
 
     // 关联表操作-开启一个事务
     let txErr, isTxOk;
-    [txErr, isTxOk] = await userModel.startTransaction();
+    let userTx = new Tx();
+
+    [txErr, isTxOk] = await userTx.startTransaction();
 
     // 事务开启冲突
     if (!isTxOk) {
@@ -199,7 +202,7 @@ class UserController {
     // 注册用户错误
     if (err) {
       // 事务回滚
-      await userModel.rollback();
+      await userTx.rollback();
       ctx.throw(500, err);
       return
     }
@@ -217,14 +220,14 @@ class UserController {
     // 注册手机号错误 回滚所有操作
     if (err) {
       // 用户信息保存事务回滚
-      await userModel.rollback()
+      await userTx.rollback()
       // 返回错误信息
       ctx.throw(500, err);
       return
     }
 
     // 关联操作成功，提交事务
-    await userModel.endTransaction()
+    await userTx.endTransaction()
 
     // 注册手机号成功
     // 返回注册成功信息
@@ -333,7 +336,9 @@ class UserController {
 
     // 关联表操作-开启一个事务
     let txErr, isTxOk;
-    [txErr, isTxOk] = await userModel.startTransaction();
+    let userTx = new Tx();
+
+    [txErr, isTxOk] = await userTx.startTransaction();
 
     // 事务开启冲突
     if (!isTxOk) {
@@ -354,7 +359,7 @@ class UserController {
     // 注册用户错误
     if (err) {
       // 事务回滚
-      await userModel.rollback();
+      await userTx.rollback();
       ctx.throw(500, err);
       return
     }
@@ -372,14 +377,14 @@ class UserController {
     // 注册邮箱号错误 回滚所有操作
     if (err) {
       // 用户信息保存事务回滚
-      await userModel.rollback()
+      await userTx.rollback()
       // 返回错误信息
       ctx.throw(500, err);
       return
     }
 
     // 关联操作成功，提交事务
-    await userModel.endTransaction()
+    await userTx.endTransaction()
 
     // 注册邮箱号成功
     // 返回注册成功信息

@@ -32,6 +32,7 @@ const {
 const {
   checkPost
 } = require('../utils/validate');
+const Tx = require('../utils/transaction')
 
 class PostController {
 
@@ -132,9 +133,12 @@ class PostController {
       return
     }
 
+    let categoryTx = new Tx();
+    let userTx = new Tx();
+
     // 找到 category 和 user，开启 category 事务
     let txErr, isTxOk;
-    [txErr, isTxOk] = await categoryModel.startTransaction()
+    [txErr, isTxOk] = await categoryTx.startTransaction()
 
     // 事务开启冲突
     if (!isTxOk) {
@@ -159,13 +163,13 @@ class PostController {
     // 更新失败，回滚事务，返回错误信息
     if (err) {
       // 事务回滚
-      categoryModel.rollback();
+      categoryTx.rollback();
       ctx.throw(500, err)
       return
     }
 
     // 开启 user 事务
-    [txErr, isTxOk] = await userModel.startTransaction()
+    [txErr, isTxOk] = await userTx.startTransaction()
 
     // 事务开启冲突
     if (!isTxOk) {
@@ -190,8 +194,8 @@ class PostController {
     // 更新失败，回滚事务，返回错误信息
     if (err) {
       // 事务回滚
-      userModel.rollback();
-      categoryModel.rollback();
+      userTx.rollback();
+      categoryTx.rollback();
       ctx.throw(500, err)
       return
     }
@@ -211,8 +215,8 @@ class PostController {
     // 添加文章失败，回滚事务
     if (err) {
       // 事务回滚
-      categoryModel.rollback()
-      userModel.rollback()
+      categoryTx.rollback()
+      userTx.rollback()
 
       // 返回错误信息
       ctx.throw(500, err)
@@ -221,8 +225,8 @@ class PostController {
     }
 
     // 关联操作成功，提交事务
-    categoryModel.endTransaction()
-    userModel.endTransaction()
+    categoryTx.endTransaction()
+    userTx.endTransaction()
 
     // 添加成功，返回成功信息
     successRes({

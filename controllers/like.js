@@ -16,6 +16,8 @@ const {
 
 } = require('../config/select')
 
+const Tx = require('../utils/transaction')
+
 class LikeController {
 
   /**
@@ -76,8 +78,14 @@ class LikeController {
 
     // 未找到则是添加点赞
     // 开启事务
+    let likeTx = new Tx();
+    let postTx = new Tx();
+    let userTx = new Tx();
+    let commentTx = new Tx();
+    let replyTx = new Tx();
+
     let txErr, isTxOk;
-    [txErr, isTxOk] = await likeModel.startTransaction()
+    [txErr, isTxOk] = await likeTx.startTransaction()
 
     // 事务开启冲突
     if (!isTxOk) {
@@ -89,7 +97,7 @@ class LikeController {
 
     // 开启事务
     let userTxErr, isUserTxOk;
-    [userTxErr, isUserTxOk] = await userModel.startTransaction()
+    [userTxErr, isUserTxOk] = await userTx.startTransaction()
 
     // 事务开启冲突
     if (!isUserTxOk) {
@@ -112,7 +120,7 @@ class LikeController {
     // 插入失败，返回错误信息
     if (err) {
       // 事务回滚
-      likeModel.rollback();
+      likeTx.rollback();
       ctx.throw(500, err);
       return
     }
@@ -144,7 +152,7 @@ class LikeController {
 
       default:
         // 事务回滚
-        likeModel.rollback();
+        likeTx.rollback();
         ctx.throw(500, "点赞类型错误");
         return;
         break;
@@ -152,7 +160,7 @@ class LikeController {
 
     if (err) {
       // 事务回滚
-      likeModel.rollback();
+      likeTx.rollback();
       ctx.throw(500, err);
       return
     }
@@ -160,7 +168,7 @@ class LikeController {
     // 没找到target
     if (!findTarget) {
       // 事务回滚
-      likeModel.rollback();
+      likeTx.rollback();
       ctx.throw(500, '点赞对象不存在');
       return
     }
@@ -175,13 +183,12 @@ class LikeController {
 
         // 开启事务
         let postTxErr, isPostTxOk;
-
-        [postTxErr, isPostTxOk] = await postModel.startTransaction()
+        [postTxErr, isPostTxOk] = await postTx.startTransaction()
 
         // 事务开启冲突
         if (!isPostTxOk) {
           // 事务回滚
-          likeModel.rollback();
+          likeTx.rollback();
           // 返回错误信息
           ctx.throw(500, postTxErr);
           return
@@ -199,8 +206,8 @@ class LikeController {
         // 更新失败，回滚事务，返回错误信息
         if (err) {
           // 事务回滚
-          likeModel.rollback();
-          postModel.rollback();
+          likeTx.rollback();
+          postTx.rollback();
           ctx.throw(500, err);
           return
         }
@@ -210,12 +217,12 @@ class LikeController {
         // 开启事务
         let commentTxErr, isCommentTxOk;
 
-        [commentTxErr, isCommentTxOk] = await commentModel.startTransaction()
+        [commentTxErr, isCommentTxOk] = await commentTx.startTransaction()
 
         // 事务开启冲突
         if (!isCommentTxOk) {
           // 事务回滚
-          likeModel.rollback();
+          likeTx.rollback();
           // 返回错误信息
           ctx.throw(500, commentTxErr);
           return
@@ -233,8 +240,8 @@ class LikeController {
         // 更新失败，回滚事务，返回错误信息
         if (err) {
           // 事务回滚
-          likeModel.rollback();
-          commentModel.rollback();
+          likeTx.rollback();
+          commentTx.rollback();
           ctx.throw(500, err);
           return
         }
@@ -245,12 +252,12 @@ class LikeController {
         // 开启事务
         let replyTxErr, isReplyTxOk;
 
-        [replyTxErr, isReplyTxOk] = await replyModel.startTransaction()
+        [replyTxErr, isReplyTxOk] = await replyTx.startTransaction()
 
         // 事务开启冲突
         if (!isReplyTxOk) {
           // 事务回滚
-          likeModel.rollback();
+          likeTx.rollback();
           // 返回错误信息
           ctx.throw(500, replyTxErr);
           return
@@ -268,18 +275,18 @@ class LikeController {
         // 更新失败，回滚事务，返回错误信息
         if (err) {
           // 事务回滚
-          likeModel.rollback();
-          replyModel.rollback();
+          likeTx.rollback();
+          replyTx.rollback();
           ctx.throw(500, err);
           return
         }
         break;
 
       default:
-        likeModel.rollback();
-        postModel.rollback();
-        commentModel.rollback();
-        replyModel.rollback();
+        likeTx.rollback();
+        postTx.rollback();
+        commentTx.rollback();
+        replyTx.rollback();
         ctx.throw(500, "点赞类型错误");
         return;
         break;
@@ -295,11 +302,11 @@ class LikeController {
 
     if (err) {
       // 事务回滚
-      likeModel.rollback();
-      userModel.rollback();
-      postModel.rollback();
-      commentModel.rollback();
-      replyModel.rollback();
+      likeTx.rollback();
+      userTx.rollback();
+      postTx.rollback();
+      commentTx.rollback();
+      replyTx.rollback();
       ctx.throw(500, err);
       return
     }
@@ -307,11 +314,11 @@ class LikeController {
     // 没找到target
     if (!findUser) {
       // 事务回滚
-      likeModel.rollback();
-      userModel.rollback();
-      postModel.rollback();
-      commentModel.rollback();
-      replyModel.rollback();
+      likeTx.rollback();
+      userTx.rollback();
+      postTx.rollback();
+      commentTx.rollback();
+      replyTx.rollback();
       ctx.throw(500, '点赞文本所属用户不存在');
       return
     }
@@ -333,11 +340,11 @@ class LikeController {
     // 更新失败，回滚事务，返回错误信息
     if (err) {
       // 事务回滚
-      likeModel.rollback();
-      userModel.rollback();
-      postModel.rollback();
-      commentModel.rollback();
-      replyModel.rollback();
+      likeTx.rollback();
+      userTx.rollback();
+      postTx.rollback();
+      commentTx.rollback();
+      replyTx.rollback();
       ctx.throw(500, err);
       return
     }
@@ -345,11 +352,11 @@ class LikeController {
     // TODO：推送消息
 
     // 关联操作成功，提交事务
-    likeModel.endTransaction()
-    userModel.endTransaction()
-    postModel.endTransaction();
-    commentModel.endTransaction();
-    replyModel.endTransaction();
+    likeTx.endTransaction()
+    userTx.endTransaction()
+    postTx.endTransaction();
+    commentTx.endTransaction();
+    replyTx.endTransaction();
     
     // 添加成功，返回成功信息
     successRes({
@@ -372,7 +379,13 @@ class LikeController {
   static async deleteLike(ctx, next, like, authorId) {
     // 开启事务
     let txErr, isTxOk;
-    [txErr, isTxOk] = await likeModel.startTransaction()
+    let likeTx = new Tx();
+    let userTx = new Tx();
+    let postTx = new Tx();
+    let commentTx = new Tx();
+    let replyTx = new Tx();
+    
+    [txErr, isTxOk] = await likeTx.startTransaction()
 
     // 事务开启冲突
     if (!isTxOk) {
@@ -384,7 +397,8 @@ class LikeController {
 
     // 开启事务
     let userTxErr, isUserTxOk;
-    [userTxErr, isUserTxOk] = await userModel.startTransaction()
+
+    [userTxErr, isUserTxOk] = await userTx.startTransaction()
 
     // 事务开启冲突
     if (!isUserTxOk) {
@@ -405,7 +419,7 @@ class LikeController {
     // 删除失败，返回错误信息
     if (err) {
       // 事务回滚
-      likeModel.rollback();
+      likeTx.rollback();
       ctx.throw(500, err);
       return
     }
@@ -437,14 +451,14 @@ class LikeController {
 
       default:
         // 事务回滚
-        likeModel.rollback();
+        likeTx.rollback();
         ctx.throw(500, "点赞类型错误");
         break;
     }
 
     if (err) {
       // 事务回滚
-      likeModel.rollback();
+      likeTx.rollback();
       ctx.throw(500, err);
       return
     }
@@ -452,7 +466,7 @@ class LikeController {
     // 没找到target
     if (!findTarget) {
       // 事务回滚
-      likeModel.rollback();
+      likeTx.rollback();
       ctx.throw(500, '点赞对象不存在');
       return
     }
@@ -468,12 +482,12 @@ class LikeController {
         // 开启事务
         let postTxErr, isPostTxOk;
 
-        [postTxErr, isPostTxOk] = await postModel.startTransaction()
+        [postTxErr, isPostTxOk] = await postTx.startTransaction()
 
         // 事务开启冲突
         if (!isPostTxOk) {
           // 事务回滚
-          likeModel.rollback();
+          likeTx.rollback();
           // 返回错误信息
           ctx.throw(500, postTxErr);
           return
@@ -491,8 +505,8 @@ class LikeController {
         // 更新失败，回滚事务，返回错误信息
         if (err) {
           // 事务回滚
-          likeModel.rollback();
-          postModel.rollback();
+          likeTx.rollback();
+          postTx.rollback();
           ctx.throw(500, err);
           return
         }
@@ -502,12 +516,12 @@ class LikeController {
         // 开启事务
         let commentTxErr, isCommentTxOk;
 
-        [commentTxErr, isCommentTxOk] = await commentModel.startTransaction()
+        [commentTxErr, isCommentTxOk] = await commentTx.startTransaction()
 
         // 事务开启冲突
         if (!isCommentTxOk) {
           // 事务回滚
-          likeModel.rollback();
+          likeTx.rollback();
           // 返回错误信息
           ctx.throw(500, commentTxErr);
           return
@@ -525,8 +539,8 @@ class LikeController {
         // 更新失败，回滚事务，返回错误信息
         if (err) {
           // 事务回滚
-          likeModel.rollback();
-          commentModel.rollback();
+          likeTx.rollback();
+          commentTx.rollback();
           ctx.throw(500, err);
           return
         }
@@ -537,12 +551,12 @@ class LikeController {
         // 开启事务
         let replyTxErr, isReplyTxOk;
 
-        [replyTxErr, isReplyTxOk] = await replyModel.startTransaction()
+        [replyTxErr, isReplyTxOk] = await replyTx.startTransaction()
 
         // 事务开启冲突
         if (!isReplyTxOk) {
           // 事务回滚
-          likeModel.rollback();
+          likeTx.rollback();
           // 返回错误信息
           ctx.throw(500, replyTxErr);
           return
@@ -560,18 +574,18 @@ class LikeController {
         // 更新失败，回滚事务，返回错误信息
         if (err) {
           // 事务回滚
-          likeModel.rollback();
-          replyModel.rollback();
+          likeTx.rollback();
+          replyTx.rollback();
           ctx.throw(500, err);
           return
         }
         break;
 
       default:
-        likeModel.rollback();
-        postModel.rollback();
-        commentModel.rollback();
-        replyModel.rollback();
+        likeTx.rollback();
+        postTx.rollback();
+        commentTx.rollback();
+        replyTx.rollback();
         ctx.throw(500, "点赞类型错误");
         return;
         break;
@@ -587,11 +601,11 @@ class LikeController {
 
     if (err) {
       // 事务回滚
-      likeModel.rollback();
-      userModel.rollback();
-      postModel.rollback();
-      commentModel.rollback();
-      replyModel.rollback();
+      likeTx.rollback();
+      userTx.rollback();
+      postTx.rollback();
+      commentTx.rollback();
+      replyTx.rollback();
       ctx.throw(500, err);
       return
     }
@@ -599,11 +613,11 @@ class LikeController {
     // 没找到target
     if (!findUser) {
       // 事务回滚
-      likeModel.rollback();
-      userModel.rollback();
-      postModel.rollback();
-      commentModel.rollback();
-      replyModel.rollback();
+      likeTx.rollback();
+      userTx.rollback();
+      postTx.rollback();
+      commentTx.rollback();
+      replyTx.rollback();
       ctx.throw(500, '点赞文本所属用户不存在');
       return
     }
@@ -625,11 +639,11 @@ class LikeController {
     // 更新失败，回滚事务，返回错误信息
     if (err) {
       // 事务回滚
-      likeModel.rollback();
-      userModel.rollback();
-      postModel.rollback();
-      commentModel.rollback();
-      replyModel.rollback();
+      likeTx.rollback();
+      userTx.rollback();
+      postTx.rollback();
+      commentTx.rollback();
+      replyTx.rollback();
       ctx.throw(500, err);
       return
     }
@@ -637,11 +651,11 @@ class LikeController {
     // TODO：推送消息
 
     // 关联操作成功，提交事务
-    likeModel.endTransaction()
-    userModel.endTransaction()
-    postModel.endTransaction();
-    commentModel.endTransaction();
-    replyModel.endTransaction();
+    likeTx.endTransaction()
+    userTx.endTransaction()
+    postTx.endTransaction();
+    commentTx.endTransaction();
+    replyTx.endTransaction();
 
     successRes({
       ctx,

@@ -20,6 +20,9 @@ const {
   userCommentSelect,
   postInfoInCommentSelect
 } = require('../config/select')
+
+const Tx = require('../utils/transaction')
+
 class CommentController {
 
   /**
@@ -55,7 +58,10 @@ class CommentController {
 
     // 开启事务
     let commentTxErr, isTxOk;
-    [commentTxErr, isTxOk] = await commentModel.startTransaction()
+    let commentTx = new Tx();
+    let userTx = new Tx();
+
+    [commentTxErr, isTxOk] = await commentTx.startTransaction()
 
     // 事务开启冲突
     if (!isTxOk) {
@@ -67,7 +73,7 @@ class CommentController {
 
     // 开启事务
     let userTxErr, isUserTxOk;
-    [userTxErr, isUserTxOk] = await userModel.startTransaction()
+    [userTxErr, isUserTxOk] = await userTx.startTransaction()
 
     // 事务开启冲突
     if (!isUserTxOk) {
@@ -91,7 +97,7 @@ class CommentController {
     // 插入失败，返回错误信息
     if (err) {
       // 事务回滚
-      commentModel.rollback();
+      commentTx.rollback();
       ctx.throw(500, err);
       return
     }
@@ -107,7 +113,7 @@ class CommentController {
     // 查找post错误
     if (err) {
       // 事务回滚
-      commentModel.rollback();
+      commentTx.rollback();
       ctx.throw(500, err);
       return
     }
@@ -115,7 +121,7 @@ class CommentController {
     // 没找到post
     if (!findPost) {
       // 事务回滚
-      commentModel.rollback();
+      commentTx.rollback();
       ctx.throw(500, '文章不存在');
       return
     }
@@ -142,7 +148,7 @@ class CommentController {
     // 更新失败，回滚事务，返回错误信息
     if (err) {
       // 事务回滚
-      commentModel.rollback();
+      commentTx.rollback();
       ctx.throw(500, err);
       return
     }
@@ -159,8 +165,8 @@ class CommentController {
     // 查找user错误
     if (err) {
       // 事务回滚
-      commentModel.rollback();
-      userModel.rollback();
+      commentTx.rollback();
+      userTx.rollback();
       ctx.throw(500, err);
       return
     }
@@ -168,8 +174,8 @@ class CommentController {
     // 没找到user
     if (!findUser) {
       // 事务回滚
-      commentModel.rollback();
-      userModel.rollback();
+      commentTx.rollback();
+      userTx.rollback();
       ctx.throw(500, '用户不存在');
       return
     }
@@ -191,8 +197,8 @@ class CommentController {
     // 更新失败，回滚事务，返回错误信息
     if (err) {
       // 事务回滚
-      commentModel.rollback();
-      userModel.rollback();
+      commentTx.rollback();
+      userTx.rollback();
       ctx.throw(500, err);
       return
     }
@@ -201,8 +207,8 @@ class CommentController {
     // TODO：推送消息
 
     // 关联操作成功，提交事务
-    commentModel.endTransaction()
-    userModel.endTransaction()
+    commentTx.endTransaction()
+    userTx.endTransaction()
 
     // populate 评论的其他信息
 

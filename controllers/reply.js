@@ -14,6 +14,7 @@ const {
 const {
   userBriefSelect,
 } = require('../config/select')
+const Tx = require('../utils/transaction')
 
 class ReplyController {
 
@@ -52,7 +53,9 @@ class ReplyController {
 
     // 开启事务
     let txErr, isTxOk;
-    [txErr, isTxOk] = await replyModel.startTransaction()
+    let replyTx = new Tx();
+
+    [txErr, isTxOk] = await replyTx.startTransaction()
 
     // 事务开启冲突
     if (!isTxOk) {
@@ -77,7 +80,7 @@ class ReplyController {
     // 插入失败，返回错误信息
     if (err) {
       // 事务回滚
-      replyModel.rollback();
+      replyTx.rollback();
       ctx.throw(500, err);
       return
     }
@@ -93,7 +96,7 @@ class ReplyController {
     // 查找comment错误
     if (err) {
       // 事务回滚
-      replyModel.rollback();
+      replyTx.rollback();
       ctx.throw(500, err);
       return
     }
@@ -101,7 +104,7 @@ class ReplyController {
     // 没找到comment
     if (!findComment) {
       // 事务回滚
-      replyModel.rollback();
+      replyTx.rollback();
       ctx.throw(500, '评论不存在');
       return
     }
@@ -126,7 +129,7 @@ class ReplyController {
     // 更新失败，回滚事务，返回错误信息
     if (err) {
       // 事务回滚
-      replyModel.rollback();
+      replyTx.rollback();
       ctx.throw(500, err);
       return
     }
@@ -134,7 +137,7 @@ class ReplyController {
     // TODO：推送消息
 
     // 关联操作成功，提交事务
-    replyModel.endTransaction()
+    replyTx.endTransaction()
 
     // populate 回复的其他信息
 
